@@ -21,8 +21,11 @@ export class ScanDocComponent  implements OnInit {
   firebaseSvc = inject(FirebaseService);
   utilsSvc = inject(UtilsService);
 
+  user = {} as User;
+
 
   ngOnInit() {
+    this.user = this.utilsSvc.getFromLocalStorege('user');
   }
 
  async takeImage(){
@@ -33,15 +36,29 @@ export class ScanDocComponent  implements OnInit {
 
   async submit(){
     if(this.form.valid){
+
+      let path = `users/${this.user.uid}/documents`
+
       const loading = await this.utilsSvc.loading();
       await loading.present();
 
-      this.firebaseSvc.signUp(this.form.value as User).then(async res => {
+      //*******subir imagen y obtener url ******/
+      let dataUrl = this.form.value.image;
+      let imagePath =`${this.user.uid}/${Date.now()}`;
+      let imageUrl = await this.firebaseSvc.uploadImage(imagePath,dataUrl);
+      this.form.controls.image.setValue(imageUrl);
 
-        await this.firebaseSvc.updateUser(this.form.value.name);
+      this.firebaseSvc.addDocument(path, this.form.value).then(async res => {
 
-        let uid= res.user.uid;
-        this.form.controls.uid.setValue(uid);
+        this.utilsSvc.dismissModal({success : true});
+
+        this.utilsSvc.presentToast({
+          message: 'Documento subido exitosamente',
+          duration: 2000,
+          position: 'middle',
+          color: 'success',
+          icon: 'checkmark-circle-outline'
+        })
 
       }).catch(error => {
         console.log(error);
