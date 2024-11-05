@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { User } from 'src/app/models/user.model';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { UtilsService } from 'src/app/services/utils.service';
 import { AddDocComponent } from 'src/app/shared/components/add-doc/add-doc.component';
@@ -19,6 +20,28 @@ export class HomePage implements OnInit {
 
   signOut(){
     this.firebaseSVC.signOut();
+  }
+
+  user(): User{
+    return this.uitlsSvc.getFromLocalStorege('user');
+  }
+
+  ionViewWillEnter(){
+    this.getDocs();
+  }
+
+  getDocs() {
+    let path = `users/${this.user().uid}/documents`;
+
+    let sub = this.firebaseSVC.getCollectionData(path).subscribe({
+      next: (res: any) => {
+        console.log(res);
+        sub.unsubscribe();
+      },
+      error: (err: any) => {
+        console.error('Error fetching documents:', err);
+      }
+    });
   }
 
   addDoc(){

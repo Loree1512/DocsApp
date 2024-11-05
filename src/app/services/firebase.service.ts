@@ -3,10 +3,11 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { User } from '../models/user.model';
-import { getFirestore, setDoc, doc, getDoc, addDoc, collection } from '@angular/fire/firestore';
+import { getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, query } from '@angular/fire/firestore';
 import { UtilsService } from './utils.service';
 import {AngularFireStorage} from '@angular/fire/compat/storage';
 import {getStorage,uploadString,ref,getDownloadURL} from "firebase/storage";
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +51,10 @@ export class FirebaseService {
   }
 
   //********* Base de datos  **********
+
+  getCollectionData(path: string): Observable<any[]> {
+    return this.firestore.collection(path).valueChanges();
+  }
 
   setDocument(path: string, data: any) {
     return setDoc(doc(getFirestore(), path), data);
