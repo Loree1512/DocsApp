@@ -1,0 +1,44 @@
+<ion-content>
+    <div class="login-section ion-padding">
+      <div class="heading ion-padding">
+        <h1>DocuGest</h1>
+        <p>Inicie sesión para continuar</p>
+      </div>
+      
+      <form [formGroup]="form" class="auth-form" (ngSubmit)="submit()" (keypress.enter)="submit()">
+
+        <app-custom-input icon="mail-outline"
+        autocomplete="email"
+        [control]="form.controls.email"
+        type="email"
+        label="Email"></app-custom-input>
+
+      
+        
+        <div class="validators" *ngIf="form.controls.email.errors && form.controls.email.touched">
+            <div *ngIf="form.controls.email.errors?.['required']">El email es requerido</div>
+            <div *ngIf="form.controls.email.errors?.['email']">Ingrese un correo válido</div>
+        </div>
+
+        <app-custom-input 
+        icon="lock-closed-outline"
+        [control]="form.controls.password"
+        type="password"
+        label="Contraseña"></app-custom-input>
+
+
+        <div class="validators" *ngIf="form.controls.password.errors && form.controls.password.touched">
+            <div *ngIf="form.controls.password.errors?.['required']">La contraseña es requerida</div>
+        </div>
+
+      <div class="action-buttons ion-padding">
+          <ion-button size="large" class="login-button" type="submit" [disabled]="form.invalid">Iniciar Sesión</ion-button>
+          <p routerLink="forgot-password" class="forgot-password-link" > ¿Olvidaste la contraseña?</p>
+          <ion-button class="signup-button" size="large" fill="outline" routerLink="sign-up">Registro</ion-button>
+      </div>
+
+      </form>
+    </div>
+  </ion-content>
+
+

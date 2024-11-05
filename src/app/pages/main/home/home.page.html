@@ -1,0 +1,21 @@
+<app-header></app-header>
+
+<ion-content >
+ 
+  <ion-button (click)="signOut()" expand="block" fill="clear" shape="round">
+    Cerrar sesion
+   </ion-button>
+
+
+   <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
+    <ion-fab-button class="fab-button-1" (click)="addDoc()" >
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+
+    <ion-fab-button class="fab-button-2" (click)="scanDoc()" >
+      <ion-icon name="camera" margin-top="100px"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+

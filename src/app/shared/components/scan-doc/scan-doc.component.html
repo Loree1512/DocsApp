@@ -1,0 +1,50 @@
+<app-header [isModal]="true" title="Escanear Documento"></app-header>
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-content>
+      <ion-button expand="block" (click)="takeImage()">
+        <ion-icon slot="start" name="camera"></ion-icon>
+        Capturar Imagen
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Vista Previa</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <img alt="Documento escaneado">
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Detalles del Documento</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form>
+        <app-custom-input [control]="form.controls.name" type="text" label="Nombre del documento"></app-custom-input>
+
+
+        <div class="validators" *ngIf="form.controls.name.errors && form.controls.name.touched">
+          <div *ngIf="form.controls.name.errors?.['required']">El nombre es requerido</div>
+        </div>
+
+        <ion-item>
+          <ion-label>Categoría</ion-label>
+          <ion-select name="documentCategory" required>
+            <ion-select-option value="informe">Informe</ion-select-option>
+            <ion-select-option value="contrato">Contrato</ion-select-option>
+            <ion-select-option value="factura">Factura</ion-select-option>
+            <ion-select-option value="otro">Otro</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-button expand="block">
+          <ion-icon slot="start" name="save"></ion-icon>
+          Guardar Documento
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -34,4 +34,14 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* @import "@ionic/angular/css/palettes/dark.system.css";*/ 
+
+@media(min-width: 769px) {
+    .add-doc-modal{
+        --height: 680px;
+    }
+
+    .scan-doc-modal{
+        --height: 680px;
+    }
+}

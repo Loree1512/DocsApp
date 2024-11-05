@@ -1,0 +1,96 @@
+ion-content{
+    --background: linear-gradient(180deg,rgba(0,0,0,0.7),rgba(0,0,0,0.1)),
+    url('/assets/background-login.png') no-repeat center center / cover;
+    display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.login-section{
+    height: 90dvh;
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    position: fixed;
+    margin: auto;
+    border-top-left-radius: 46px;
+    border-top-right-radius: 46px;
+
+    .heading{
+        margin-top: 20px;
+        text-align: center;
+        h1{
+            font-size: 1.8rem;
+            font-weight: bolder;
+            color: #375a13;
+        }
+        p{
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #7b7b7b;
+        }
+    }
+    .login-form{
+        .form-input{
+            position: relative;
+            margin-bottom: 15px;
+            ion-item::part(native){
+                padding-left: 0;
+            }
+
+            ion-icon{
+                position: relative;
+                top: 36px;
+                z-index: 2;
+                font-size: 1.2rem;
+                left: 5px;
+            }
+            ion-label{
+                position: absolute;
+                margin-left: 35px;
+                font-weight: bolder;
+                font-size: 0.8rem;
+                top: 3px;
+            }
+
+            ion-input{
+                font-size: 0.9rem;
+                --padding-start: 36px;
+                --padding-bottom: 0px;
+                color: #7b7b7b;
+            }
+        }
+    }
+
+    .action-buttons{
+        text-align: center;
+        .login-button{
+            --background: #afc8b2;
+            width: 100%;
+            font-weight: bold;
+        }
+        p{
+            margin-top: 15px;
+            font-size: 1rem;
+            color: #7b7b7b;
+        }
+        .signup-button{
+     
+            border: 2px solid #afc8b2;
+            background: transparent;
+            --color: #afc8b2;
+            font-weight: bold;
+            margin-top: 30px;
+            width: 100%;
+            --border-color: #afc8b2; // Define el color del borde para Ionic
+            --background: transparent; // Asegúrate de que el fondo sea transparente para Ionic
+            --background-activated: transparent; // Asegúrate de que el fondo activado sea transparente para Ionic
+            --background-focused: transparent; // Asegúrate de que el fondo enfocado sea transparente para Ionic
+            --background-hover: transparent; // Asegúrate de que el fondo al pasar el ratón sea transparente para Ionic
+        }
+    }
+}

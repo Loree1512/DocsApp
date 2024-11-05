@@ -1,0 +1,16 @@
+ion-toolbar {
+    --background: #709775; /* Cambia el color de fondo de la toolbar */
+    --color: white; /* Cambia el color del texto de la toolbar */
+  }
+
+ion-button{
+    --background:#709775;
+  }
+
+  .custom-file-button {
+    --background: white; /* Fondo blanco */
+    --border-color: #709775; /* Borde verde */
+    --color: #709775; /* Texto verde */
+    --ion-color-primary: #709775; /* Asegura que los iconos también sean verdes */
+    border: 1px solid #709775; /* Borde verde */
+  }
