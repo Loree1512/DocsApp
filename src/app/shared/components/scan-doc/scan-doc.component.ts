@@ -12,7 +12,7 @@ import { UtilsService } from 'src/app/services/utils.service';
 export class ScanDocComponent  implements OnInit {
 
   form = new FormGroup({
-    uid: new FormControl(''),
+    id: new FormControl(''),
     name: new FormControl('', [Validators.required]),
     category: new FormControl('',[Validators.required]),
     image: new FormControl('',[Validators.required]),

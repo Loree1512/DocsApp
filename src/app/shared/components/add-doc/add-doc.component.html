@@ -5,7 +5,7 @@
       <ion-card-title>Información del Documento</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <form>
+      <form [formGroup]="form">
         <app-custom-input 
       [control]="form.controls.name"
       type="text"
@@ -18,7 +18,7 @@
         
         <ion-item>
           <ion-label >Categoría</ion-label>
-          <ion-select  name="documentCategory" required>
+          <ion-select  formControlName="category" required>
             <ion-select-option value="informe">Informe</ion-select-option>
             <ion-select-option value="contrato">Contrato</ion-select-option>
             <ion-select-option value="factura">Factura</ion-select-option>
@@ -35,18 +35,18 @@
         
         <ion-item lines="none">
           <ion-label>Seleccionar archivo</ion-label>
-          <ion-button fill="outline"  class="custom-file-button">
+          <ion-button fill="outline"  (click)="fileInput.click()" class="custom-file-button">
             <ion-icon slot="start" name="document-attach-outline"></ion-icon>
             Elegir archivo
           </ion-button>
-          <input #fileInput type="file"  accept=".pdf,.doc,.docx" style="display: none;" required>
+          <input #fileInput type="file"  (change)="onFileChange($event)" accept=".pdf,.doc,.docx" style="display: none;" required>
         </ion-item>
-        <ion-text color="medium" >
-          Archivo seleccionado: 
+        <ion-text color="medium" *ngIf="selectedFile">
+          Archivo seleccionado: {{selectedFile.name}}
         </ion-text>
         
         <div class="ion-padding-top">
-          <ion-button expand="block" type="submit" >
+          <ion-button expand="block" type="submit" (click)="submit()">
             <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
             Subir Documento
           </ion-button>
