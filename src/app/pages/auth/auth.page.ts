@@ -22,73 +22,81 @@ export class AuthPage implements OnInit {
   ngOnInit() {
   }
 
-  async submit(){
-    if(this.form.valid){
+  async submit() {
+    if (this.form.valid) {
       const loading = await this.utilsSvc.loading();
       await loading.present();
-
-      this.firebaseSvc.signIn(this.form.value as User).then(res => {
-
-        this.getUserInfo(res.user.uid);
-
-      }).catch(error => {
-        console.log(error);
-
+  
+      try {
+        const res = await this.firebaseSvc.signIn(this.form.value as User);
+        const user = res.user;
+  
+        if (user) {
+          const userData = {
+            uid: user.uid,
+            name: user.displayName || 'Usuario',
+            email: user.email
+          };
+  
+          this.utilsSvc.saveInLocalStorage('user', userData);
+          this.utilsSvc.presentToast({
+            message: `Bienvenido, ${userData.name}!`,
+            duration: 2000,
+            position: 'middle',
+            color: 'success',
+            icon: 'checkmark-circle-outline'
+          });
+  
+          this.getUserInfo(userData.uid); 
+          this.utilsSvc.routerLink('/main/home');
+        }
+      } catch (error) {
+        console.error(error);
         this.utilsSvc.presentToast({
           message: error.message,
           duration: 2000,
           position: 'middle',
           color: 'danger',
           icon: 'alert-circle-outline'
-        })
-
-      }).finally(()=> {
+        });
+      } finally {
         loading.dismiss();
-      })
-      
+      }
     }
     
     
   }
 
-  async getUserInfo(uid:string){
-    if(this.form.valid){
-      const loading = await this.utilsSvc.loading();
-      await loading.present();
-
-      let path = `users/${uid}`;
-
-      this.firebaseSvc.getDocument(path).then((user:User) => {
-
-        this.utilsSvc.saveInLocalStorage('user', user)
-        this.utilsSvc.routerLink('/main/home');
-        this.form.reset();
-
+  async getUserInfo(uid: string) {
+    const loading = await this.utilsSvc.loading();
+    await loading.present();
+  
+    try {
+      const path = `users/${uid}`;
+      const userDoc = await this.firebaseSvc.getDocument(path);
+  
+      if (userDoc) {
+        this.utilsSvc.saveInLocalStorage('user', userDoc);
         this.utilsSvc.presentToast({
-          message: `Te damos la bienvenida ${user.name}`,
+          message: `Te damos la bienvenida ${userDoc.name}`,
           duration: 2000,
           position: 'middle',
           color: 'success',
           icon: 'person-circle-outline'
-        })
-
-      }).catch(error => {
-        console.log(error);
-
-        this.utilsSvc.presentToast({
-          message: error.message,
-          duration: 2000,
-          position: 'middle',
-          color: 'danger',
-          icon: 'alert-circle-outline'
-        })
-
-      }).finally(()=> {
-        loading.dismiss();
-      })
-      
+        });
+        this.form.reset();
+      }
+    } catch (error) {
+      console.error('Error al obtener información del usuario:', error);
+      this.utilsSvc.presentToast({
+        message: error.message,
+        duration: 2000,
+        position: 'middle',
+        color: 'danger',
+        icon: 'alert-circle-outline'
+      });
+    } finally {
+      loading.dismiss();
     }
-    
-    
   }
 }

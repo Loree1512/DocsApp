@@ -46,7 +46,17 @@ async takePicture(promptLabelHeader: string){
   }
 
   getFromLocalStorege(key: string) {
-    return JSON.parse(localStorage.getItem(key));
+    const item = localStorage.getItem(key);
+    // Verifica si el valor existe y no es null ni undefined
+    if (item) {
+      try {
+        return JSON.parse(item);
+      } catch (error) {
+        console.error('Error al parsear JSON:', error);
+        return null; // o algún valor por defecto
+      }
+    }
+    return null; // o algún valor por defecto si el item no existe
   }
 
   async presentModal(opts: ModalOptions){
