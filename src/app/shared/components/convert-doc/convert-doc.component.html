@@ -1,0 +1,61 @@
+<app-header [isModal]="true" title="Convertir Documento a PDF"></app-header>
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Conversión de Documento</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form [formGroup]="form">
+        
+        <!-- Campo para seleccionar archivo .docx -->
+        <ion-item lines="none">
+          <ion-label position="stacked">Seleccionar archivo .docx</ion-label>
+          <ion-button fill="outline" (click)="fileInput.click()" class="custom-file-button">
+            <ion-icon slot="start" name="document-attach-outline"></ion-icon>
+            Elegir archivo
+          </ion-button>
+          <input #fileInput type="file" (change)="onFileSelected($event)" accept=".docx" style="display: none;">
+        </ion-item>
+        
+        <!-- Texto para mostrar el nombre del archivo seleccionado -->
+      <ion-text color="medium" *ngIf="selectedFile">
+        Archivo seleccionado: {{ selectedFile.name }}
+      </ion-text>
+      
+      <!-- Mostrar mensaje de carga mientras se convierte -->
+      <ion-text color="primary" *ngIf="isConverting">
+        <ion-spinner name="dots" color="primary"></ion-spinner>
+        Convertiendo... por favor espere.
+      </ion-text>
+        
+        <!-- Botón para iniciar la conversión -->
+        <div class="ion-padding-top">
+          <ion-button expand="block" (click)="convertToPdf()" [disabled]="!selectedFile">
+            <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+            Convertir a PDF
+          </ion-button>
+        </div>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Lista de PDFs almacenados en Firestore -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Archivos PDF Subidos</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let doc of pdfDocuments$ | async">
+          <ion-label>{{ doc.name }}</ion-label>
+          <ion-button fill="clear" slot="end" (click)="viewPdf(doc.url)">
+            <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" slot="end" (click)="downloadPdf(doc.url, doc.name)">
+            <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

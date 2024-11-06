@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddDocComponent } from './components/add-doc/add-doc.component';
 import { ScanDocComponent } from './components/scan-doc/scan-doc.component';
+import { ConvertDocComponent } from './components/convert-doc/convert-doc.component';
 
 
 
@@ -16,7 +17,8 @@ import { ScanDocComponent } from './components/scan-doc/scan-doc.component';
     CustomInputComponent,
     LogoComponent,
     AddDocComponent,
-    ScanDocComponent
+    ScanDocComponent,
+    ConvertDocComponent
   ],
   exports:[
     HeaderComponent,
@@ -24,7 +26,8 @@ import { ScanDocComponent } from './components/scan-doc/scan-doc.component';
     LogoComponent,
     ReactiveFormsModule,
     AddDocComponent,
-    ScanDocComponent
+    ScanDocComponent,
+    ConvertDocComponent
   ],
   imports: [
     CommonModule,

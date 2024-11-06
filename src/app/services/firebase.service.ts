@@ -6,7 +6,7 @@ import { User } from '../models/user.model';
 import { getFirestore, setDoc, doc, getDoc, addDoc, collection, collectionData, query } from '@angular/fire/firestore';
 import { UtilsService } from './utils.service';
 import {AngularFireStorage} from '@angular/fire/compat/storage';
-import {getStorage,uploadString,ref,getDownloadURL} from "firebase/storage";
+import {getStorage,uploadString,ref,getDownloadURL,uploadBytes} from "firebase/storage";
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -60,8 +60,15 @@ export class FirebaseService {
     return setDoc(doc(getFirestore(), path), data);
   }
 
-  async getDocument(path: string) {
-    return (await getDoc(doc(getFirestore(), path))).data();
+  async getDocument(path: string): Promise<User | undefined> {
+    const docRef = doc(this.firestore.firestore, path);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data() as User;
+    } else {
+      console.error('No such document!');
+      return undefined;
+    }
   }
 
   addDocument(path: string, data: any) {
@@ -74,6 +81,23 @@ export class FirebaseService {
     return uploadString(ref(getStorage(),path),data_url,'data_url').then(() => {
       return getDownloadURL(ref(getStorage(),path));
     })
+  }
+
+  async uploadFile(filePath: string, file: Blob): Promise<string> {
+    const storageRef = ref(getStorage(), filePath);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  }
+
+    // ************* obtener referencia de almacenamiento ***********
+      getStorageRef(path: string) {
+      return ref(getStorage(), path);
+    }
+
+      // ************* obtener URL de archivo ***********
+  async getFileUrl(path: string): Promise<string> {
+    const fileRef = ref(getStorage(), path);
+    return getDownloadURL(fileRef);
   }
 
 }

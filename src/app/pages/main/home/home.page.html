@@ -1,18 +1,28 @@
 <app-header></app-header>
 
+<<<<<<< HEAD
 <ion-content >
  
+=======
+<ion-content>
+  <ion-button (click)="signOut()" expand="block" fill="clear" shape="round">
+    Cerrar sesión
+  </ion-button>
+>>>>>>> eae9053404fef32d293324844300bb3e34521190
 
 
-   <ion-fab vertical="bottom" horizontal="end" slot="fixed" >
-    <ion-fab-button class="fab-button-1" (click)="addDoc()" >
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
 
-    <ion-fab-button class="fab-button-2" (click)="scanDoc()" >
-      <ion-icon name="camera" margin-top="100px"></ion-icon>
-    </ion-fab-button>
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button class="fab-button-1" (click)="addDoc()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+
+      <ion-fab-button class="fab-button-2" (click)="scanDoc()">
+        <ion-icon name="camera" margin-top="100px"></ion-icon>
+      </ion-fab-button>
+
+      <ion-fab-button class="fab-button" (click)="convertDoc()">
+        <ion-icon name="document-outline"></ion-icon>
+      </ion-fab-button>
   </ion-fab>
 </ion-content>
-
-
