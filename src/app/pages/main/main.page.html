@@ -1,13 +1,12 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>main</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">main</ion-title>
-    </ion-toolbar>
-  </ion-header>
-</ion-content>
+<ion-menu side="start" menuId="menu-content" contentId="menu-content">
+  <app-header title="Menú"></app-header>
+  <ion-content>
+    <ion-menu-toggle auto-hide="false" *ngFor="let p of pages">
+      <ion-item [routerLink]="p.url" routerDirection="root" detail>
+        <ion-icon slot="start" [name]="p.icon"></ion-icon>
+        <ion-label>{{p.title}}</ion-label>
+      </ion-item>
+    </ion-menu-toggle>
+  </ion-content>
+</ion-menu>
+<ion-router-outlet id="menu-content" main></ion-router-outlet>

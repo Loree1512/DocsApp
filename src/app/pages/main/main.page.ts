@@ -7,7 +7,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MainPage implements OnInit {
 
-  constructor() { }
+  pages = [
+    {title:'Inico', url:'home', icon:'home-outline'},
+    {title:'Perfil', url:'profile', icon:'person-outline'},
+  ]
+    
+  
 
   ngOnInit() {
   }
