@@ -54,6 +54,9 @@
           <ion-button fill="clear" slot="end" (click)="downloadPdf(doc.url, doc.name)">
             <ion-icon slot="icon-only" name="download-outline"></ion-icon>
           </ion-button>
+          <ion-button fill="clear" slot="end" (click)="deletePdf(doc.id, doc.filePath)">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
         </ion-item>
       </ion-list>
     </ion-card-content>
