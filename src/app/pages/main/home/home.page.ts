@@ -1,10 +1,13 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { User } from 'src/app/models/user.model';
+import { Component, OnInit } from '@angular/core';
+import { User } from 'src/app/models/user.model'; // Adjust the path as necessary
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { UtilsService } from 'src/app/services/utils.service';
+import { getStorage, ref, getDownloadURL, uploadString, uploadBytes } from 'firebase/storage';
+import { Observable, from } from 'rxjs';
 import { AddDocComponent } from 'src/app/shared/components/add-doc/add-doc.component';
 import { ConvertDocComponent } from 'src/app/shared/components/convert-doc/convert-doc.component';
 import { ScanDocComponent } from 'src/app/shared/components/scan-doc/scan-doc.component';
+;
 
 @Component({
   selector: 'app-home',
@@ -12,13 +15,64 @@ import { ScanDocComponent } from 'src/app/shared/components/scan-doc/scan-doc.co
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
+  currentUser: User;
+  storage = getStorage();
+  availableSpace: number = 0; // Espacio disponible
+  recentDocuments$: Observable<any[]>; // Documentos recientes
 
-  firebaseSvc = inject(FirebaseService);
-  utilsSvc = inject(UtilsService);
+  constructor(private firebaseSvc: FirebaseService, private utilsSvc: UtilsService) {}
 
   ngOnInit() {
+    this.currentUser = this.utilsSvc.getFromLocalStorege('user');
+    if (this.currentUser && this.currentUser.uid) {
+      this.getAvailableSpace();
+      this.getRecentDocuments();
+    } else {
+      console.error('Usuario no autenticado');
+    }
   }
 
+  async getAvailableSpace() {
+    this.availableSpace = await this.firebaseSvc.getAvailableSpace();
+  }
+
+  getRecentDocuments() {
+    const storagePath = `/users/${this.currentUser.uid}/documents`;
+    this.recentDocuments$ = from(this.firebaseSvc.getDocumentsFromStorage(storagePath));
+  }
+
+  async uploadProfilePicture(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      const filePath = `users/${this.currentUser.uid}/${file.name}`;
+      const fileRef = ref(this.storage, filePath);
+      await uploadBytes(fileRef, file);
+      const downloadURL = await getDownloadURL(fileRef);
+      this.currentUser.photoURL = downloadURL;
+      await this.firebaseSvc.updateUserProfile(this.currentUser.uid, { photoURL: downloadURL });
+      this.getRecentDocuments(); // Actualizar documentos recientes después de subir la foto
+    }
+  }
+
+  async takeProfilePicture() {
+    try {
+      const photo = await this.utilsSvc.takePicture('Tomar foto de perfil');
+      if (!photo) {
+        console.log('El usuario canceló la acción de tomar una foto.');
+        return;
+      }
+      const filePath = `users/${this.currentUser.uid}/profile.jpg`;
+      const fileRef = ref(this.storage, filePath);
+      await uploadString(fileRef, photo.dataUrl, 'data_url');
+      const downloadURL = await getDownloadURL(fileRef);
+      this.currentUser.photoURL = downloadURL;
+      await this.firebaseSvc.updateUserProfile(this.currentUser.uid, { photoURL: downloadURL });
+      this.getRecentDocuments(); // Actualizar documentos recientes después de tomar la foto
+    } catch (error) {
+      console.error('Error al tomar la foto de perfil:', error);
+    }
+  }
   signOut() {
     this.firebaseSvc.signOut();
   }

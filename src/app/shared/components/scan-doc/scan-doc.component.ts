@@ -34,49 +34,46 @@ export class ScanDocComponent  implements OnInit {
 
   }
 
-  async submit(){
-    if(this.form.valid){
-
-      let path = `users/${this.user.uid}/documents`
-
+  async submit() {
+    if (this.form.valid) {
+      let path = `users/${this.user.uid}/documents`;
+  
       const loading = await this.utilsSvc.loading();
       await loading.present();
-
-      //*******subir imagen y obtener url ******/
+  
+      // Subir imagen y obtener URL
       let dataUrl = this.form.value.image;
-      let imagePath =`${this.user.uid}/${Date.now()}`;
-      let imageUrl = await this.firebaseSvc.uploadImage(imagePath,dataUrl);
-      this.form.controls.image.setValue(imageUrl);
-
+      let imagePath = `${this.user.uid}/${Date.now()}`;  // Usar un ID único como docId
+      let imageUrl = await this.firebaseSvc.uploadImage(this.user.uid, imagePath, dataUrl);  // Proporcionar los tres parámetros
+      this.form.controls.image.setValue(imageUrl);  // Guardar la URL de la imagen en el formulario
+  
+      // Agregar el documento a la base de datos
       this.firebaseSvc.addDocument(path, this.form.value).then(async res => {
-
-        this.utilsSvc.dismissModal({success : true});
-
+        this.utilsSvc.dismissModal({ success: true });
+  
         this.utilsSvc.presentToast({
           message: 'Documento subido exitosamente',
           duration: 2000,
           position: 'middle',
           color: 'success',
           icon: 'checkmark-circle-outline'
-        })
-
+        });
+  
       }).catch(error => {
         console.log(error);
-
+  
         this.utilsSvc.presentToast({
           message: error.message,
           duration: 2000,
           position: 'middle',
           color: 'danger',
           icon: 'alert-circle-outline'
-        })
-
-      }).finally(()=> {
+        });
+  
+      }).finally(() => {
         loading.dismiss();
-      })
-      
+      });
+  
     }
-    
-    
   }
 }

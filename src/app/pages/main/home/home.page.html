@@ -5,19 +5,64 @@
     Cerrar sesión
   </ion-button>
 
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Perfil del Usuario</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-item>
+        <ion-avatar slot="start">
+          <img [src]="currentUser.photoURL || 'assets/default-avatar.png'" />
+        </ion-avatar>
+        <ion-label>
+          <h2>{{ currentUser.name }}</h2>
+          <p>{{ currentUser.email }}</p>
+        </ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>Subir nueva foto de perfil</ion-label>
+        <input type="file" (change)="uploadProfilePicture($event)" />
+      </ion-item>
+      <ion-item>
+        <ion-label>Tomar foto de perfil</ion-label>
+        <ion-button (click)="takeProfilePicture()">Tomar Foto</ion-button>
+      </ion-item>
+    </ion-card-content>
+  </ion-card>
 
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Espacio Disponible</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p>{{ availableSpace }} MB disponibles</p>
+    </ion-card-content>
+  </ion-card>
 
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-      <ion-fab-button class="fab-button-1" (click)="addDoc()">
-        <ion-icon name="add"></ion-icon>
-      </ion-fab-button>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Últimos Documentos Subidos</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let doc of recentDocuments$ | async">
+          <ion-label>{{ doc.name }}</ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
 
-      <ion-fab-button class="fab-button-2" (click)="scanDoc()">
-        <ion-icon name="camera" margin-top="100px"></ion-icon>
-      </ion-fab-button>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button class="fab-button-1" (click)="addDoc()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
 
-      <ion-fab-button class="fab-button" (click)="convertDoc()">
-        <ion-icon name="document-outline"></ion-icon>
-      </ion-fab-button>
+    <ion-fab-button class="fab-button-2" (click)="scanDoc()">
+      <ion-icon name="camera" margin-top="100px"></ion-icon>
+    </ion-fab-button>
+
+    <ion-fab-button class="fab-button" (click)="convertDoc()">
+      <ion-icon name="document-outline"></ion-icon>
+    </ion-fab-button>
   </ion-fab>
 </ion-content>

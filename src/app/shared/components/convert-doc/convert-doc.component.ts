@@ -100,12 +100,11 @@ downloadPdf(fileUrl: string, fileName: string) {
   // Método para eliminar el PDF
   async deletePdf(docId: string, filePath: string) {
     try {
-      await this.firebaseSvc.deleteDocument(`pdfDocuments/${docId}`);
+      const userUID = 'some-user-uid'; // Proporciona el userUID correcto aquí
+      await this.firebaseSvc.deleteDocument(userUID, docId);
       console.log('Documento eliminado exitosamente!');
     } catch (error) {
       console.error('Error al eliminar el documento:', error);
     }
   }
-    
-
 }

@@ -72,8 +72,8 @@ export class AuthPage implements OnInit {
     await loading.present();
   
     try {
-      const path = `users/${uid}`;
-      const userDoc = await this.firebaseSvc.getDocument(path);
+      const docId = uid; // Aquí deberías definir el docId adecuado
+      const userDoc = await this.firebaseSvc.getDocument(uid, docId); // Pasa ambos parámetros
   
       if (userDoc) {
         this.utilsSvc.saveInLocalStorage('user', userDoc);
