@@ -5,6 +5,8 @@ import { DocxToPdfService } from 'src/app/services/docx-to-pdf.service';
 import { FirebaseService } from 'src/app/services/firebase.service';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
+
+
 @Component({
   selector: 'app-convert-doc',
   templateUrl: './convert-doc.component.html',
@@ -15,6 +17,7 @@ export class ConvertDocComponent implements OnInit {
   selectedFile: File | null = null;
   isConverting: boolean = false;  // Estado de conversión
   pdfDocuments$: Observable<any[]>; 
+  storage = getStorage();
 
   constructor(
     private fb: FormBuilder,
@@ -36,6 +39,11 @@ export class ConvertDocComponent implements OnInit {
     }
   }
 
+  // Método para obtener la referencia de almacenamiento
+  getStorageRef(filePath: string) {
+    return ref(this.storage, filePath);
+  }
+
   async convertToPdf() {
     if (this.selectedFile) {
       this.isConverting = true;  // Activar estado de conversión
@@ -49,7 +57,7 @@ export class ConvertDocComponent implements OnInit {
         const filePath = `/pdfDocuments/${fileName}`;
         
         // Subir el archivo PDF a Firebase Storage
-        const fileRef = this.firebaseSvc.getStorageRef(filePath);
+        const fileRef = this.getStorageRef(filePath);
         await uploadBytes(fileRef, blob);
 
         // Obtener la URL de descarga del archivo subido
@@ -69,13 +77,35 @@ export class ConvertDocComponent implements OnInit {
 
   // Métodos para visualizar y descargar el PDF
   viewPdf(fileUrl: string) {
-    window.open(fileUrl, '_blank');
+    if (fileUrl) {
+      window.open(fileUrl, '_blank');
+    } else {
+      console.error('URL del archivo no válida');
+    }
   }
 
-  downloadPdf(fileUrl: string, fileName: string) {
+// Método para descargar el PDF usando fileUrl
+downloadPdf(fileUrl: string, fileName: string) {
+  if (fileUrl) {
     const link = document.createElement('a');
     link.href = fileUrl;
-    link.download = fileName;
+    link.download = fileName; // Nombre del archivo en la descarga
     link.click();
+  } else {
+    console.error('URL del archivo no válida');
   }
+}
+
+
+  // Método para eliminar el PDF
+  async deletePdf(docId: string, filePath: string) {
+    try {
+      await this.firebaseSvc.deleteDocument(`pdfDocuments/${docId}`);
+      console.log('Documento eliminado exitosamente!');
+    } catch (error) {
+      console.error('Error al eliminar el documento:', error);
+    }
+  }
+    
+
 }

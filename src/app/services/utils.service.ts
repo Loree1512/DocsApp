@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { LoadingController, ModalController, ModalOptions, ToastController, ToastOptions } from '@ionic/angular';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { AlertController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +13,7 @@ export class UtilsService {
   toastCtrl = inject(ToastController);
   modalCtrl = inject(ModalController);
   router = inject(Router);
+  alertCtrl = inject(AlertController);
 
 
 async takePicture(promptLabelHeader: string){
@@ -69,5 +71,16 @@ async takePicture(promptLabelHeader: string){
 
   dismissModal(data?: any){
     return this.modalCtrl.dismiss(data);
+  }
+
+  async confirmAlert(options: { message: string, buttons: any[] }) {
+    const alert = await this.alertCtrl.create({
+      header: 'Confirmación',
+      message: options.message,
+      buttons: options.buttons
+    });
+    await alert.present();
+    const { role } = await alert.onDidDismiss();
+    return role;
   }
 }
