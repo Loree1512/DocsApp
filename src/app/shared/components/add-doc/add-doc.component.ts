@@ -20,7 +20,6 @@ export class AddDocComponent implements OnInit {
   selectedFile: File | null = null;
   documents$: Observable<any[]>; 
   form = new FormGroup({
-    id: new FormControl(''),
     name: new FormControl('', [Validators.required]),
     category: new FormControl('', [Validators.required]),
     description: new FormControl(''),
@@ -36,35 +35,14 @@ export class AddDocComponent implements OnInit {
   user = {} as User;
 
   ngOnInit() {
-    this.user = this.utilsSvc.getFromLocalStorege('user');
-
+    
+    const userUID = this.firebaseSvc.getuserUid();
+    this.documents$ = this.firebaseSvc.getDocumentsFromStorage(userUID);
   
     
   }
   
-  async getDocumentsFromStorage(userUID: string, documentId: string): Promise<any[]> {
-    const path = `users/${userUID}/documents/${documentId}`;  // Formamos la ruta completa en Storage
-    const storageRef = ref(this.storage, path);
-
-    try {
-      const documentList = await listAll(storageRef);
-      const documents = await Promise.all(
-        documentList.items.map(async (itemRef) => {
-          const url = await getDownloadURL(itemRef);
-          return {
-            name: itemRef.name,
-            fullPath: itemRef.fullPath,
-            url: url
-          };
-        })
-      );
-      return documents;
-    } catch (error) {
-      console.error("Error al obtener los documentos de Firebase Storage:", error);
-      throw error;
-    }
-  }
-
+  
 
   onFileChange(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -82,108 +60,87 @@ export class AddDocComponent implements OnInit {
     }
   }
 
+    // Función para actualizar la lista de documentos después de la eliminación
+    async refreshDocumentList(userUID: string) {
+      try {
+        const documents = await firstValueFrom(this.firebaseSvc.getUserDocumentsCollection(userUID));
+        this.documents$ = of(documents); // Asegura que el observable se actualice correctamente
+      } catch (error) {
+        console.error('Error al obtener la lista de documentos:', error);
+      }
+    }
+
    // Función para manejar la subida del documento
    async submit() {
-    if (this.form.valid) {
-      const loading = await this.utilsSvc.loading();
-      await loading.present();
+    if (this.form.valid && this.selectedFile) {
+      const documentData = this.form.value;
   
       try {
-        // Obtener la ubicación
+        // Obtener ubicación
         const position = await Geolocation.getCurrentPosition();
         const { latitude, longitude } = position.coords;
-        alert(`Ubicación de subida:\nLatitud: ${latitude}\nLongitud: ${longitude}`);
+
+         // Obtener userUID desde el servicio
+      const userUID = this.firebaseSvc.getuserUid();
   
-        const documentPath = `users/${this.user.uid}/documents/${Date.now()}_${this.form.value.name}`;
+        // Preparar datos del documento
+        const data = {
+          ...documentData,
+          location: { latitude, longitude },
+          userUID,
+        };
   
-        // Si tienes lógica para subir el archivo, asegúrate de que se llame aquí
-        // Ejemplo: await this.firebaseSvc.uploadFile(documentPath, this.selectedFile);
+      
+
+      // Subir documento con archivo
+      await this.firebaseSvc.addDocument(data, this.selectedFile);
+
   
-        // Esperar a que el documento se suba correctamente y actualizar la lista de documentos
-        await this.refreshDocumentList(this.user.uid);
-  
-        // Notificación de éxito
-        this.utilsSvc.presentToast({
-          message: 'Documento subido exitosamente',
-          duration: 2000,
-          position: 'middle',
-          color: 'success',
-          icon: 'checkmark-circle-outline'
-        });
-  
+        alert('Documento subido con éxito.');
+        this.selectedFile = null;
+        this.form.reset();
       } catch (error) {
         console.error('Error al subir el documento:', error);
-  
-        // Notificación de error
-        this.utilsSvc.presentToast({
-          message: 'Error al subir el documento',
-          duration: 2000,
-          position: 'middle',
-          color: 'danger',
-          icon: 'alert-circle-outline'
-        });
-      } finally {
-        // Asegúrate de cerrar el indicador de carga en todas las situaciones
-        await loading.dismiss();
       }
     }
   }
   // Función para visualizar el documento
-  async viewDocument(filePath: string) {
+  async viewDocument(url: string) {
     try {
-      if (!filePath) {
+      if (!url || url.trim() === '') {
         throw new Error('La ruta del archivo no está definida.');
       }
-      // Abrir el documento en una nueva pestaña
-      window.open(filePath, '_blank');
+      window.open(url, '_blank');
     } catch (error) {
-      console.error('Error al intentar abrir el documento:', error);
-      this.utilsSvc.presentToast({
-        message: 'Error al intentar abrir el documento',
-        duration: 2000,
-        position: 'middle',
-        color: 'danger',
-        icon: 'alert-circle-outline'
-      });
+      console.error('Error al intentar abrir el documento:', error.message || error);
+      alert('No se pudo abrir el documento: ' + (error.message || 'Ruta no válida.'));
     }
   }
 
 // Función para descargar el documento
-async downloadDocument(doc: { documentUrl: string; name: string }) {
-  if (!doc?.documentUrl) {
-    console.error('Error al intentar descargar el documento: La ruta del archivo no está definida.');
-    this.utilsSvc.presentToast({
-      message: 'Error: La ruta del archivo no está definida.',
-      duration: 2000,
-      position: 'middle',
-      color: 'danger',
-      icon: 'alert-circle-outline'
-    });
-    return;
-  }
-
+async downloadDocument(filePath: string) {
   try {
-    // Obtener la URL de descarga del archivo desde Firebase Storage usando documentUrl
-    const storageRef = ref(this.storage, doc.documentUrl);
-    const url = await getDownloadURL(storageRef);
+    console.log('Intentando descargar documento con filePath:', filePath); // Depuración
+    if (!filePath || filePath.trim() === '') {
+      throw new Error('La ruta del archivo no está definida.');
+    }
 
-    // Crear un enlace de descarga y activar la descarga
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';  // Abrir en una nueva pestaña
-    a.download = doc.name || 'descarga';  // Usa el nombre del documento para la descarga, o un nombre genérico
-    a.click();
+    // Obtener la referencia al archivo en Firebase Storage
+    const storage = getStorage();
+    const storageRef = ref(storage, filePath);
 
-    console.log('Documento descargado correctamente');
+    // Obtener la URL de descarga
+    const downloadUrl = await getDownloadURL(storageRef);
+
+    // Crear un enlace para iniciar la descarga
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = filePath.split('/').pop() || 'archivo';
+    link.target = '_blank'; 
+    link.click();
   } catch (error) {
-    console.error('Error al intentar descargar el documento:', error);
-    this.utilsSvc.presentToast({
-      message: 'Error al descargar el documento.',
-      duration: 2000,
-      position: 'middle',
-      color: 'danger',
-      icon: 'alert-circle-outline'
-    });
+    console.error('Error al intentar descargar el documento:', error.message || error);
+    alert('No se pudo descargar el documento: ' + (error.message || 'Ruta no válida.'));
   }
 }
 
@@ -248,15 +205,7 @@ async deleteDocument(documentId: string): Promise<void> {
     }
   }
   
-  // Función para actualizar la lista de documentos después de la eliminación
-  async refreshDocumentList(userUID: string) {
-    try {
-      const documents = await this.firebaseSvc.getUserDocumentsCollection(userUID).toPromise();
-      this.documents$ = of(documents); // Esto asegura que el observable se actualice
-    } catch (error) {
-      console.error('Error al obtener la lista de documentos:', error);
-    }
-  }
-  // Función para eliminar el archivo desde Firebase Storage
+
+
   
 }

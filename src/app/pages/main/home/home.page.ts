@@ -16,6 +16,7 @@ import { ScanDocComponent } from 'src/app/shared/components/scan-doc/scan-doc.co
 })
 export class HomePage implements OnInit {
   currentUser: User;
+  documents$: Observable<any[]>; 
   storage = getStorage();
   availableSpace: number = 0; // Espacio disponible
   recentDocuments$: Observable<any[]>; // Documentos recientes
@@ -24,6 +25,8 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.currentUser = this.utilsSvc.getFromLocalStorege('user');
+    const userUID = this.firebaseSvc.getuserUid();
+    this.documents$ = this.firebaseSvc.getDocumentsFromStorage(userUID);
     if (this.currentUser && this.currentUser.uid) {
       this.getAvailableSpace();
       this.getRecentDocuments();
@@ -38,7 +41,9 @@ export class HomePage implements OnInit {
 
   getRecentDocuments() {
     const storagePath = `/users/${this.currentUser.uid}/documents`;
-    this.recentDocuments$ = from(this.firebaseSvc.getDocumentsFromStorage(storagePath));
+  
+    // Asegúrate de llamar correctamente al servicio
+    this.recentDocuments$ = this.firebaseSvc.getDocumentsFromStorage(this.currentUser.uid);
   }
 
   async uploadProfilePicture(event: Event) {

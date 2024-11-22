@@ -64,13 +64,13 @@
       <ion-list>
         <ion-item *ngFor="let doc of documents$ | async">
           <ion-label>{{ doc.name }}</ion-label>
-          <ion-button fill="clear" slot="end" (click)="viewDocument(doc.url)">
+          <ion-button fill="clear" slot="end" (click)="doc.fileUrl ? viewDocument(doc.fileUrl) : null">
             <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
           </ion-button>
-          <ion-button fill="clear" slot="end" (click)="downloadDocument(doc.fullPath)">
+          <ion-button fill="clear" slot="end" (click)="downloadDocument(doc.filePath)">
             <ion-icon slot="icon-only" name="download-outline"></ion-icon>
           </ion-button>
-          <ion-button fill="clear" slot="end" (click)="deleteDocument(doc.fullPath)">
+          <ion-button fill="clear" slot="end" (click)="deleteDocument(doc.filePath)">
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
           </ion-button>
         </ion-item>

@@ -48,7 +48,7 @@ export class ScanDocComponent  implements OnInit {
       this.form.controls.image.setValue(imageUrl);  // Guardar la URL de la imagen en el formulario
   
       // Agregar el documento a la base de datos
-      this.firebaseSvc.addDocument(path, this.form.value).then(async res => {
+      this.firebaseSvc.addDocumento(path, this.form.value).then(async res => {
         this.utilsSvc.dismissModal({ success: true });
   
         this.utilsSvc.presentToast({
