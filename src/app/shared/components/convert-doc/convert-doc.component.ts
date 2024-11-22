@@ -64,7 +64,7 @@ export class ConvertDocComponent implements OnInit {
         const downloadURL = await getDownloadURL(fileRef);
 
         // Guardar el nombre del archivo y la URL de descarga en Firestore
-        await this.firebaseSvc.addDocument('pdfDocuments', { name: fileName, url: downloadURL });
+        await this.firebaseSvc.addDocumento('pdfDocuments', { name: fileName, url: downloadURL });
 
         console.log('Archivo PDF subido y guardado en Firestore exitosamente!');
       } catch (error) {
@@ -100,12 +100,11 @@ downloadPdf(fileUrl: string, fileName: string) {
   // Método para eliminar el PDF
   async deletePdf(docId: string, filePath: string) {
     try {
-      await this.firebaseSvc.deleteDocument(`pdfDocuments/${docId}`);
+      const userUID = 'some-user-uid'; // Proporciona el userUID correcto aquí
+      await this.firebaseSvc.deleteDocument(userUID, docId);
       console.log('Documento eliminado exitosamente!');
     } catch (error) {
       console.error('Error al eliminar el documento:', error);
     }
   }
-    
-
 }
