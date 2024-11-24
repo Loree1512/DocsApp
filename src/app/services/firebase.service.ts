@@ -249,12 +249,33 @@ getUserDocumentsCollection(userUID: string): Observable<any[]> {
 
 //* New new new new nenewn ewn **/
     // ************* eliminar documento ***********
-    async deleteDocument(fullPath: string, documentId: string): Promise<void> {
+   /* async deleteDocument(fullPath: string, documentId: string): Promise<void> {
       const fileRef = this.storage.ref(fullPath);
       await lastValueFrom(fileRef.delete());
       await this.firestore.doc(`users/${this.userUid}/documents/${documentId}`).delete();
     }
+*/
+async deleteDocument(fullPath: string, documentId: string): Promise<void> {
+  try {
+    const storage = getStorage();
+    const firestore = getFirestore();
 
+    // 1. Eliminar el archivo de Firebase Storage
+    const fileRef = ref(storage, fullPath);
+    await deleteObject(fileRef);
+    console.log('Archivo eliminado del Storage.');
+
+    // 2. Eliminar el documento en Firestore
+    const userUID = this.getuserUid(); // Obtener el UID dinámicamente
+    const documentPath = `users/${userUID}/documents/${documentId}`;
+    const documentRef = doc(firestore, documentPath);
+    await deleteDoc(documentRef);
+    console.log('Documento eliminado de Firestore.');
+  } catch (error) {
+    console.error('Error al eliminar el documento:', error);
+    throw error; // Lanza el error para manejarlo en el componente
+  }
+}
 
  //**NEW NEW NEW NEW NEW NEW */
 // Función para obtener documentos desde Firebase Storage usando una ruta específica

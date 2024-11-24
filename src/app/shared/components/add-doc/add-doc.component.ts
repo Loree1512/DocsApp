@@ -145,67 +145,27 @@ async downloadDocument(filePath: string) {
 }
 
   // Función para eliminar el documento desde Firestore
-async deleteDocument(documentId: string): Promise<void> {
-  if (!documentId || !this.user?.uid) {
-    console.error('Error al eliminar el documento: ID de documento o UID de usuario no definidos.');
-    return;
-  }
-
-  const userUID = this.user.uid;
-  const documentPath = `users/${userUID}/documents/${documentId}`; // Construye la ruta correctamente
-
-  // Confirmar si el usuario está seguro de eliminar el documento
-  const confirm = await this.utilsSvc.confirmAlert({
-    message: '¿Estás seguro de que deseas eliminar este documento?',
-    buttons: [
-      { text: 'Cancelar', role: 'cancel' },
-      {
-        text: 'Eliminar',
-        handler: async () => {
-          try {
-            // Eliminar el documento desde Firestore usando la ruta correcta
-            await this.firestore.doc(documentPath).delete();
-            console.log('Documento eliminado con éxito de Firestore.');
-
-            // Actualizar la lista de documentos
-            await this.refreshDocumentList(userUID);
-
-            // Mostrar mensaje de éxito
-            this.utilsSvc.presentToast({
-              message: 'Documento eliminado exitosamente.',
-              duration: 2000,
-              position: 'middle',
-              color: 'success',
-              icon: 'trash-outline'
-            });
-          } catch (error) {
-            console.error('Error al eliminar el documento:', error);
-            this.utilsSvc.presentToast({
-              message: 'Error al eliminar el documento.',
-              duration: 2000,
-              position: 'middle',
-              color: 'danger',
-              icon: 'alert-circle-outline'
-            });
-          }
-        }
-      }
-    ]
-  });
-}
-  
-  // Función para eliminar el archivo desde Firebase Storage
-  async deleteFile(filePath: string): Promise<void> {
-    const fileRef = ref(this.storage, filePath);
+  async deleteDocument(filePath: string, documentId: string): Promise<void> {
     try {
-      await deleteObject(fileRef);  // Eliminar archivo desde Firebase Storage
-      console.log('Archivo eliminado de Firebase Storage.');
+      await this.firebaseSvc.deleteDocument(filePath, documentId);
+      this.utilsSvc.presentToast({
+        message: 'Documento eliminado exitosamente.',
+        duration: 2000,
+        position: 'middle',
+        color: 'success',
+        icon: 'trash-outline',
+      });
     } catch (error) {
-      console.error('Error al eliminar el archivo de Firebase Storage:', error);
+      console.error('Error al intentar eliminar el documento:', error.message || error);
+      this.utilsSvc.presentToast({
+        message: 'Error al eliminar el documento.',
+        duration: 2000,
+        position: 'middle',
+        color: 'danger',
+        icon: 'alert-circle-outline',
+      });
     }
   }
   
 
-
-  
 }

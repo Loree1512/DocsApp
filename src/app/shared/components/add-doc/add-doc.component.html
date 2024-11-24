@@ -70,7 +70,7 @@
           <ion-button fill="clear" slot="end" (click)="downloadDocument(doc.filePath)">
             <ion-icon slot="icon-only" name="download-outline"></ion-icon>
           </ion-button>
-          <ion-button fill="clear" slot="end" (click)="deleteDocument(doc.filePath)">
+          <ion-button fill="clear" slot="end" (click)="deleteDocument(doc.filePath, doc.documentId)">
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
           </ion-button>
         </ion-item>
