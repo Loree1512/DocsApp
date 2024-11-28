@@ -60,7 +60,7 @@ export class AddDocComponent implements OnInit {
     }
   }
 
-    // Función para actualizar la lista de documentos después de la eliminación
+    // Función para actualizar la lista de documentos
     async refreshDocumentList(userUID: string) {
       try {
         const documents = await firstValueFrom(this.firebaseSvc.getUserDocumentsCollection(userUID));

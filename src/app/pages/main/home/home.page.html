@@ -39,14 +39,22 @@
     </ion-card-content>
   </ion-card>
 
+  
+  <!-- Lista de documentos subidos -->
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Últimos Documentos Subidos</ion-card-title>
+      <ion-card-title>Documentos Subidos</ion-card-title>
     </ion-card-header>
     <ion-card-content>
       <ion-list>
-        <ion-item *ngFor="let doc of recentDocuments$ | async">
+        <ion-item *ngFor="let doc of documents$ | async">
           <ion-label>{{ doc.name }}</ion-label>
+          <ion-button fill="clear" slot="end" (click)="doc.fileUrl ? viewDocument(doc.fileUrl) : null">
+            <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+          </ion-button>
+          <ion-button fill="clear" slot="end" (click)="deleteDocument(doc.filePath, doc.documentId)">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
         </ion-item>
       </ion-list>
     </ion-card-content>

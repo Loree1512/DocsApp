@@ -7,6 +7,7 @@ import { Observable, from } from 'rxjs';
 import { AddDocComponent } from 'src/app/shared/components/add-doc/add-doc.component';
 import { ConvertDocComponent } from 'src/app/shared/components/convert-doc/convert-doc.component';
 import { ScanDocComponent } from 'src/app/shared/components/scan-doc/scan-doc.component';
+import { firstValueFrom, of } from 'rxjs';
 ;
 
 @Component({
@@ -34,6 +35,16 @@ export class HomePage implements OnInit {
       console.error('Usuario no autenticado');
     }
   }
+
+     // Función para actualizar la lista de documentos
+     async refreshDocumentList(userUID: string) {
+      try {
+        const documents = await firstValueFrom(this.firebaseSvc.getUserDocumentsCollection(userUID));
+        this.documents$ = of(documents); // Asegura que el observable se actualice correctamente
+      } catch (error) {
+        console.error('Error al obtener la lista de documentos:', error);
+      }
+    }
 
   async getAvailableSpace() {
     this.availableSpace = await this.firebaseSvc.getAvailableSpace();
@@ -132,4 +143,41 @@ export class HomePage implements OnInit {
     cssClass: 'convert-doc-modal'
   });
 }
+
+ // Función para visualizar el documento
+ async viewDocument(url: string) {
+  try {
+    if (!url || url.trim() === '') {
+      throw new Error('La ruta del archivo no está definida.');
+    }
+    window.open(url, '_blank');
+  } catch (error) {
+    console.error('Error al intentar abrir el documento:', error.message || error);
+    alert('No se pudo abrir el documento: ' + (error.message || 'Ruta no válida.'));
+  }
+}
+
+  // Función para eliminar el documento desde Firestore
+  async deleteDocument(filePath: string, documentId: string): Promise<void> {
+    try {
+      await this.firebaseSvc.deleteDocument(filePath, documentId);
+      this.utilsSvc.presentToast({
+        message: 'Documento eliminado exitosamente.',
+        duration: 2000,
+        position: 'middle',
+        color: 'success',
+        icon: 'trash-outline',
+      });
+    } catch (error) {
+      console.error('Error al intentar eliminar el documento:', error.message || error);
+      this.utilsSvc.presentToast({
+        message: 'Error al eliminar el documento.',
+        duration: 2000,
+        position: 'middle',
+        color: 'danger',
+        icon: 'alert-circle-outline',
+      });
+    }
+  }
+  
 }
