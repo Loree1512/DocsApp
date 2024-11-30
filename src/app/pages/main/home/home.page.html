@@ -55,6 +55,10 @@
           <ion-button fill="clear" slot="end" (click)="deleteDocument(doc.filePath, doc.documentId)">
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
           </ion-button>
+          <ion-button 
+          fill="clear" slot="end" (click)="openMapModalForDocument(doc.documentId)">
+          <ion-icon slot="icon-only" name="map-outline"></ion-icon>
+          </ion-button>
         </ion-item>
       </ion-list>
     </ion-card-content>
@@ -69,8 +73,5 @@
       <ion-icon name="camera" margin-top="100px"></ion-icon>
     </ion-fab-button>
 
-    <ion-fab-button class="fab-button" (click)="convertDoc()">
-      <ion-icon name="document-outline"></ion-icon>
-    </ion-fab-button>
   </ion-fab>
 </ion-content>

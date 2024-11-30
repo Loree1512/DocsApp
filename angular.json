@@ -130,7 +130,10 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/global.scss", 
+                      "src/theme/variables.scss",
+                      "src/styles.css",
+                      "node_modules/leaflet/dist/leaflet.css"],
             "scripts": []
           },
           "configurations": {

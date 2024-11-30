@@ -8,6 +8,10 @@ import { AddDocComponent } from 'src/app/shared/components/add-doc/add-doc.compo
 import { ConvertDocComponent } from 'src/app/shared/components/convert-doc/convert-doc.component';
 import { ScanDocComponent } from 'src/app/shared/components/scan-doc/scan-doc.component';
 import { firstValueFrom, of } from 'rxjs';
+import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { inject } from '@angular/core'
+import { ModalController } from '@ionic/angular';
+import { MapComponent } from 'src/app/shared/components/map/map.component';
 ;
 
 @Component({
@@ -19,10 +23,10 @@ export class HomePage implements OnInit {
   currentUser: User;
   documents$: Observable<any[]>; 
   storage = getStorage();
+  firestore = inject(AngularFirestore);
   availableSpace: number = 0; // Espacio disponible
   recentDocuments$: Observable<any[]>; // Documentos recientes
-
-  constructor(private firebaseSvc: FirebaseService, private utilsSvc: UtilsService) {}
+  constructor(private firebaseSvc: FirebaseService, private utilsSvc: UtilsService, private modalController: ModalController) {}
 
   ngOnInit() {
     this.currentUser = this.utilsSvc.getFromLocalStorege('user');
@@ -157,6 +161,19 @@ export class HomePage implements OnInit {
   }
 }
 
+async openMapModalForDocument(documentId: string) {
+  const userUID = this.firebaseSvc.getuserUid(); // Obtener UID del usuario actual
+
+  const modal = await this.modalController.create({
+    component: MapComponent,
+    componentProps: {
+      userUID, // Pasar el UID del usuario
+      documentId, // Pasar el ID del documento
+    },
+  });
+
+  await modal.present();
+}
   // Función para eliminar el documento desde Firestore
   async deleteDocument(filePath: string, documentId: string): Promise<void> {
     try {
@@ -178,6 +195,8 @@ export class HomePage implements OnInit {
         icon: 'alert-circle-outline',
       });
     }
+
+    
   }
   
 }
