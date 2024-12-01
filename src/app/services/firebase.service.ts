@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, sendPasswordResetEmail, User as FirebaseUser } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, updateEmail, sendPasswordResetEmail, User as FirebaseUser } from 'firebase/auth';
 import { User } from '../models/user.model';
-import { getFirestore, setDoc, doc, getDoc, addDoc, deleteDoc, where, getDocs} from 'firebase/firestore';
+import { getFirestore, setDoc, doc, getDoc, addDoc, deleteDoc, where, getDocs, updateDoc} from 'firebase/firestore';
 import { UtilsService } from './utils.service';
 import {AngularFireStorage} from '@angular/fire/compat/storage';
 import {getStorage,uploadString,ref,getDownloadURL,uploadBytes,deleteObject, listAll, FirebaseStorage, getMetadata} from "firebase/storage";
@@ -47,11 +47,20 @@ export class FirebaseService {
     return signInWithEmailAndPassword(getAuth(), user.email, user.password);
   }
 
+ 
   // ************* registrar ***********
-  signUp(user: User) {
-    return createUserWithEmailAndPassword(getAuth(), user.email, user.password);
-  }
 
+async signUp(user: User): Promise<any> {  // Devuelve una promesa que resuelve con el userCredential
+  try {
+    const auth = getAuth();
+    const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
+    
+    // El userCredential contiene el objeto 'user' que tiene el UID
+    return userCredential;  // Devuelve el userCredential
+  } catch (error) {
+    throw error;  // Si ocurre un error, lo lanzamos
+  }
+}
   // ************* actualizar perfil ***********
   updateUser(displayName: string) {
     return updateProfile(getAuth().currentUser, { displayName })
@@ -61,26 +70,34 @@ export class FirebaseService {
     return sendPasswordResetEmail(getAuth(), email);
   }
 
-  async updateUserProfile(uid: string, data: Partial<User>): Promise<void> {
-    const user = getAuth().currentUser as FirebaseUser;
-    if (user) {
-      await updateProfile(user, data as { displayName?: string; photoURL?: string });
-      const userDocRef = this.firestore.collection('users').doc(uid);
-      const userDoc = await userDocRef.get().toPromise();
-      if (userDoc.exists) {
-        await userDocRef.update(data);
-      } else {
-        await userDocRef.set(data);
-      }
-    } else {
-      throw new Error('No user is currently signed in.');
+  async updateProfile(uid: string, { name, photoURL }: { name?: string, photoURL?: string }): Promise<void> {
+    try {
+        const user = getAuth().currentUser;
+
+        // Actualiza el perfil en Firebase Auth
+        if (user) {
+            await updateProfile(user, {
+                displayName: name || user.displayName,
+                photoURL: photoURL || user.photoURL,
+            });
+        }
+
+        // Obtener la referencia al documento del usuario
+        const userDocRef = this.firestore.doc(`users/${uid}`).ref;
+
+        // Actualizar los datos en Firestore (usando setDoc para agregar o actualizar los datos)
+        await setDoc(userDocRef, { name, photoURL }, { merge: true });  // merge: true solo actualiza los campos proporcionados
+
+    } catch (error) {
+        console.error('Error al actualizar el perfil', error);
     }
-  }
+}
+
 
   private async getUsedSpace(): Promise<number> {
     // Implementa la lógica para calcular el espacio utilizado
     // Aquí hay un ejemplo básico que suma el tamaño de todos los archivos en Firebase Storage
-    const storageRef = ref(getStorage(), 'users/USER_UID/documents');
+    const storageRef = ref(getStorage(), 'users/${}/documents');
     const documentList = await listAll(storageRef);
     let totalSize = 0;
     for (const itemRef of documentList.items) {
@@ -277,6 +294,23 @@ getDocumentsFromStorage(userUID: string): Observable<Document[]> {
   const documentsQuery = query(documentsRef, orderBy('createdAt', 'desc'));
 
   return collectionData(documentsQuery, { idField: 'id' }) as Observable<Document[]>;
+}
+
+async getUserProfile(userUID: string): Promise<User> {
+  const firestore = getFirestore();
+  const userRef = doc(firestore, `users/${userUID}`);
+  const docSnapshot = await getDoc(userRef);
+
+  if (docSnapshot.exists()) {
+    const data = docSnapshot.data() as User; // Se asegura de que los datos devueltos sean del tipo 'User'
+    return {
+      ...data,
+      name: data.name || 'Nombre no disponible', // Valor por defecto si no se encuentra el nombre
+      email: data.email || 'Correo no disponible', // Valor por defecto si no se encuentra el email
+    };
+  } else {
+    throw new Error('El perfil del usuario no existe.');
+  }
 }
 
 

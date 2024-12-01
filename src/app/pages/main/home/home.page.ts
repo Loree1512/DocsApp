@@ -33,8 +33,9 @@ export class HomePage implements OnInit {
               private navController: NavController) {}
 
   ngOnInit() {
-    this.currentUser = this.utilsSvc.getFromLocalStorege('user');
+ 
     const userUID = this.firebaseSvc.getuserUid();
+    this.loadUserProfile();
     this.documents$ = this.firebaseSvc.getDocumentsFromStorage(userUID);
     if (this.currentUser && this.currentUser.uid) {
       this.getAvailableSpace();
@@ -53,6 +54,16 @@ export class HomePage implements OnInit {
       }
     }
 
+    async loadUserProfile() {
+      try {
+        const userUID = this.firebaseSvc.getuserUid(); // Obtener el UID del usuario actual
+        this.currentUser = await this.firebaseSvc.getUserProfile(userUID); // Cargar el perfil
+        console.log('Perfil cargado:', this.currentUser);
+      } catch (error) {
+        console.error('Error al cargar el perfil del usuario:', error);
+      }
+    }
+
   async getAvailableSpace() {
     this.availableSpace = await this.firebaseSvc.getAvailableSpace();
   }
@@ -64,6 +75,7 @@ export class HomePage implements OnInit {
     this.recentDocuments$ = this.firebaseSvc.getDocumentsFromStorage(this.currentUser.uid);
   }
 
+  /*
   async uploadProfilePicture(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -96,6 +108,81 @@ export class HomePage implements OnInit {
       console.error('Error al tomar la foto de perfil:', error);
     }
   }
+    */
+
+  async uploadProfilePicture(event: Event) {
+    const input = event.target as HTMLInputElement;
+   
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+  
+      try {
+        // Obtener el UID del usuario
+        const userUID = this.firebaseSvc.getuserUid();
+  
+        // Ruta del archivo en Firebase Storage
+        const filePath = `users/${userUID}/${file.name}`;
+        const fileRef = ref(this.storage, filePath);
+  
+        // Subir el archivo
+        await uploadBytes(fileRef, file);
+  
+        // Obtener el URL de descarga del archivo
+        const downloadURL = await getDownloadURL(fileRef);
+  
+        // Obtener el nombre actual del usuario
+        const name = this.currentUser.name || '';  // Si no existe, asigna un valor vacío
+  
+        // Actualizar el perfil del usuario en Firebase (nombre y foto)
+        await this.firebaseSvc.updateProfile(userUID, { name, photoURL: downloadURL });
+  
+        // Actualizar localmente la URL de la foto
+        this.currentUser.photoURL = downloadURL;
+  
+        alert('Foto de perfil subida con éxito.');
+      } catch (error) {
+        console.error('Error al subir la foto de perfil:', error);
+      }
+    }
+  }
+
+  async takeProfilePicture() {
+    try {
+      const photo = await this.utilsSvc.takePicture('Tomar foto de perfil');
+      
+      if (!photo) {
+        console.log('El usuario canceló la acción de tomar una foto.');
+        return;
+      }
+  
+      // Obtener el UID del usuario
+      const userUID = this.firebaseSvc.getuserUid();
+  
+      // Ruta para la foto de perfil
+      const filePath = `users/${userUID}/profile.jpg`;
+      const fileRef = ref(this.storage, filePath);
+  
+      // Subir la foto como base64
+      await uploadString(fileRef, photo.dataUrl, 'data_url');
+  
+      // Obtener el URL de descarga
+      const downloadURL = await getDownloadURL(fileRef);
+  
+      // Obtener el nombre desde el formulario o desde algún campo
+      const name = this.currentUser.name;  // Asegúrate de que `name` esté definido
+  
+      // Actualizar el perfil del usuario en Firebase
+      await this.firebaseSvc.updateProfile(userUID, { name, photoURL: downloadURL });
+  
+      // Actualizar localmente la URL de la foto
+      this.currentUser.photoURL = downloadURL;
+  
+      alert('Foto de perfil tomada y subida con éxito.');
+    } catch (error) {
+      console.error('Error al tomar la foto de perfil:', error);
+    }
+  }
+
   signOut() {
     this.firebaseSvc.signOut();
   }
@@ -165,42 +252,6 @@ export class HomePage implements OnInit {
 }
 
 
-/*
-async openMapModalForDocument(documentId: string) {
-  const userUID = this.firebaseSvc.getuserUid();
-
-  try {
-    // Obtener las coordenadas del documento utilizando la nueva función
-    const coordinates = await firstValueFrom(this.firebaseSvc.getDocumentCoordinates(userUID, documentId));
-
-    if (!coordinates) {
-      throw new Error('El documento no contiene latitud o longitud válidas.');
-    }
-
-    const { latitude, longitude } = coordinates;
-
-    // Crear el modal y pasar las coordenadas como propiedades
-    const modal = await this.modalController.create({
-      component: MapComponent,
-      componentProps: {
-        userUID,
-        documentId,
-        latitude,
-        longitude,
-      },
-    });
-
-    await modal.present();
-    modal.onDidDismiss().then(() => {
-      console.log('Modal cerrado');
-    });
-  } catch (error) {
-    console.error('Error al abrir el modal del mapa:', error.message || error);
-    // Aquí podrías mostrar un mensaje de error al usuario
-  }
-}
-  */
-
 async openMapForDocument(documentId: string) {
   try {
     const userUID = this.firebaseSvc.getuserUid();
@@ -256,5 +307,7 @@ async openMapForDocument(documentId: string) {
 
     
   }
+
+
   
 }

@@ -1,9 +1,7 @@
-<app-header></app-header>
+
 
 <ion-content>
-  <ion-button (click)="signOut()" expand="block" fill="clear" shape="round">
-    Cerrar sesión
-  </ion-button>
+
 
   <ion-card>
     <ion-card-header>
@@ -12,16 +10,12 @@
     <ion-card-content>
       <ion-item>
         <ion-avatar slot="start">
-          <img [src]="currentUser.photoURL || 'assets/default-avatar.png'" />
+          <img [src]="currentUser.photoURL" />
         </ion-avatar>
         <ion-label>
           <h2>{{ currentUser.name }}</h2>
           <p>{{ currentUser.email }}</p>
         </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-label>Subir nueva foto de perfil</ion-label>
-        <input type="file" (change)="uploadProfilePicture($event)" />
       </ion-item>
       <ion-item>
         <ion-label>Tomar foto de perfil</ion-label>
@@ -63,7 +57,9 @@
       </ion-list>
     </ion-card-content>
   </ion-card>
-
+  <ion-button (click)="signOut()" expand="block" fill="clear" shape="round">
+    Cerrar sesión
+  </ion-button>
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button class="fab-button-1" (click)="addDoc()">
       <ion-icon name="add"></ion-icon>

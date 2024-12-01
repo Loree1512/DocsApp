@@ -25,46 +25,49 @@ export class SignUpPage implements OnInit {
   ngOnInit() {
   }
 
-  async submit(){
-    if(this.form.valid){
-      const loading = await this.utilsSvc.loading();
-      await loading.present();
 
-      this.firebaseSvc.signUp(this.form.value as User).then(async res => {
+async submit() {
+  if (this.form.valid) {
+    const loading = await this.utilsSvc.loading();
+    await loading.present();
 
-        await this.firebaseSvc.updateUser(this.form.value.name);
+    this.firebaseSvc.signUp(this.form.value as User).then(async res => {
+      // Aquí 'res' es el userCredential retornado por la función signUp
+      const uid = res.user.uid;  // accedemos al 'user' que está dentro de 'res'
 
-        let uid= res.user.uid;
-        this.form.controls.uid.setValue(uid);
-        this.setUserInfo(uid);
+      // Actualizamos el perfil del usuario
+      await this.firebaseSvc.updateUser(this.form.value.name);
 
-      }).catch(error => {
-        console.log(error);
+      // Seteamos el UID en el formulario
+      this.form.controls.uid.setValue(uid);
 
-        this.utilsSvc.presentToast({
-          message: error.message,
-          duration: 2000,
-          position: 'middle',
-          color: 'danger',
-          icon: 'alert-circle-outline'
-        })
+      // Llamamos a la función para guardar el usuario en Firestore
+      this.setUserInfo(uid);
 
-      }).finally(()=> {
-        loading.dismiss();
-      })
-      
-    }
-    
-    
+    }).catch(error => {
+      console.log(error);
+
+      this.utilsSvc.presentToast({
+        message: error.message,
+        duration: 2000,
+        position: 'middle',
+        color: 'danger',
+        icon: 'alert-circle-outline'
+      });
+
+    }).finally(() => {
+      loading.dismiss();
+    });
+
   }
-
+}
 
   async setUserInfo(uid:string){
     if(this.form.valid){
       const loading = await this.utilsSvc.loading();
       await loading.present();
 
-      let path = 'users/${uid}';
+      let path = `users/${uid}`; 
       delete this.form.value.password;
 
       this.firebaseSvc.setDocument(path, this.form.value).then(async res => {
