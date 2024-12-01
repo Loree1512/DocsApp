@@ -1,81 +1,108 @@
-import { Component, AfterViewInit, Input } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 import * as L from 'leaflet';
 import { FirebaseService } from 'src/app/services/firebase.service';
-import { Document } from 'src/app/models/document.model';
 import { ModalController } from '@ionic/angular';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements AfterViewInit {
-  @Input() userUID!: string; // Recibe el UID del usuario
-  @Input() documentId?: string; // Opcional: Recibe un documentId si se especifica
+export class MapComponent implements OnInit, AfterViewInit {
+  @Input() latitude!: number;
+  @Input() longitude!: number;
+  @Input() userUID: string;
+  @Input() documentId: string;
 
-  map: any;
+  private map: L.Map;
 
-  constructor(private firebaseSvc: FirebaseService, private modalController: ModalController) {}
+  constructor(private firebaseSvc: FirebaseService, private modalController: ModalController, private activatedRoute: ActivatedRoute) {}
 
-  ngAfterViewInit() {
-    this.initializeMap();
-
-    if (this.documentId) {
-      // Cargar un solo documento por documentId
-      this.loadSingleDocumentLocation();
+  ngOnInit() {
+    if (this.latitude && this.longitude) {
+      console.log('Coordenadas recibidas en MapComponent:', { latitude: this.latitude, longitude: this.longitude });
+      this.initMap(this.latitude, this.longitude);
     } else {
-      // Cargar todas las ubicaciones para el userUID
-      this.loadAllDocumentLocations();
+      console.error('No se recibieron las coordenadas.');
     }
   }
 
-  initializeMap() {
-    this.map = L.map('map').setView([-33.0153, -71.5500], 13); // Viña del Mar, Chile
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(this.map);
+  ngAfterViewInit() {
+    // Recargar el tamaño del mapa después de que el modal esté renderizado
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();  // Forzar recálculo de tamaño
+      }
+    }, 500);  // Ajustar el tiempo según el comportamiento
   }
 
-  loadAllDocumentLocations() {
-    this.firebaseSvc.getDocumentsFromStorage(this.userUID).subscribe((documents: Document[]) => {
-      const group = L.featureGroup(); // Agrupar los marcadores
 
-      documents.forEach((doc) => {
-        if (doc.latitude && doc.longitude) {
-          // Crear un marcador para cada documento
-          const marker = L.marker([doc.latitude, doc.longitude]).bindPopup(
-            `<strong>${doc.name}</strong><br>${doc.description || ''}`
-          );
+  initMap(latitude: number, longitude: number): void {
+    const mapContainer = document.getElementById('mapContainer');
+    if (!mapContainer) {
+      console.error('Contenedor del mapa no encontrado.');
+      return;
+    }
+  
+    this.map = L.map('mapContainer', {
+      zoomControl: true,
+      attributionControl: true,
+    }).setView([latitude, longitude], 13);
+  
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(this.map);
+  
+  L.control.scale().addTo(this.map);
+  L.marker([latitude, longitude]).addTo(this.map)
+    // Verificación de las coordenadas antes de agregar el marcador
+    console.log('Coordenadas para el marcador:', latitude, longitude);
+  
+    // Redimensionar el mapa después de la inicialización
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+        console.log('Redimensionando el mapa...');
+      }
+    }, 500);
+  }
 
-          marker.addTo(this.map);
-          group.addLayer(marker); // Agregar el marcador al grupo
+  ionViewDidEnter(): void {
+    const mapContainer = document.getElementById('mapContainer');
+    if (!mapContainer) {
+      console.error('Contenedor del mapa no encontrado.');
+      return;
+    }
+  
+    console.log('Dimensiones iniciales del contenedor:', mapContainer.clientWidth, mapContainer.clientHeight);
+  
+    // Inicializar el mapa si no está ya inicializado
+    if (!this.map) {
+      console.log('Inicializando mapa...');
+      this.initMap(this.latitude, this.longitude);
+    }
+  
+    setTimeout(() => {
+      if (this.map) {
+        console.log('Reajustando el tamaño del mapa...');
+        this.map.invalidateSize();
+      }
+    }, 500);
+  }
+
+
+  reloadTiles(): void {
+    // Recargar las baldosas del mapa
+    if (this.map) {
+      console.log('Recargando baldosas...');
+      this.map.eachLayer((layer) => {
+        if (layer instanceof L.TileLayer) {
+          layer.redraw(); // Forzar el redibujado de las baldosas
         }
       });
-
-      // Ajustar el mapa para mostrar todos los marcadores
-      if (group.getBounds().isValid()) {
-        this.map.fitBounds(group.getBounds(), { padding: [50, 50] });
-      }
-    });
-  }
-
-  loadSingleDocumentLocation() {
-    this.firebaseSvc.getDocumentsFromStorage(this.userUID).subscribe((documents: Document[]) => {
-      // Filtrar el documento con el documentId específico
-      const doc = documents.find((d) => d.documentId === this.documentId);
-
-      if (doc && doc.latitude && doc.longitude) {
-        // Crear un marcador para el documento específico
-        L.marker([doc.latitude, doc.longitude])
-          .addTo(this.map)
-          .bindPopup(`<strong>${doc.name}</strong><br>${doc.description || ''}`)
-          .openPopup();
-
-        // Centrar el mapa en la ubicación del documento
-        this.map.setView([doc.latitude, doc.longitude], 13);
-      }
-    });
+    }
   }
 
   dismissModal() {

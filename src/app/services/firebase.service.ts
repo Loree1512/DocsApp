@@ -9,7 +9,7 @@ import {AngularFireStorage} from '@angular/fire/compat/storage';
 import {getStorage,uploadString,ref,getDownloadURL,uploadBytes,deleteObject, listAll, FirebaseStorage, getMetadata} from "firebase/storage";
 import { Observable, BehaviorSubject } from 'rxjs';
 import { switchMap,map } from 'rxjs/operators';
-import { of, lastValueFrom } from 'rxjs';
+import { of, lastValueFrom, from } from 'rxjs';
 import { firestore, storage } from './firebase.config';
 import { get } from 'http';
 import { Document } from '../models/document.model';
@@ -22,7 +22,6 @@ export class FirebaseService {
   private storage: AngularFireStorage;
   auth = inject(AngularFireAuth);
   firestore = inject(AngularFirestore);
-  /*storage =inject(AngularFireStorage);*/
   utilsSvc = inject(UtilsService);
   private userUid: string = 'USER_UID';
 
@@ -110,11 +109,7 @@ export class FirebaseService {
     const user = await this.auth.currentUser;
     return user ? user.uid : null;
   }
-/*
-  setDocument(path: string, data: any) {
-    return setDoc(doc(getFirestore(), path), data);
-  }
-*/
+
 async setDocument(path: string, data: any): Promise<void> {
   try {
     await this.firestore.doc(path).set(data);
@@ -249,12 +244,7 @@ getUserDocumentsCollection(userUID: string): Observable<any[]> {
 
 //* New new new new nenewn ewn **/
     // ************* eliminar documento ***********
-   /* async deleteDocument(fullPath: string, documentId: string): Promise<void> {
-      const fileRef = this.storage.ref(fullPath);
-      await lastValueFrom(fileRef.delete());
-      await this.firestore.doc(`users/${this.userUid}/documents/${documentId}`).delete();
-    }
-*/
+
 async deleteDocument(fullPath: string, documentId: string): Promise<void> {
   try {
     const storage = getStorage();
@@ -305,8 +295,35 @@ getDocumentsFromStorage(userUID: string): Observable<Document[]> {
     return this.firestore.collection(`users/${userUID}/documents`).add(docData);
   }
 
+  getDocumentCoordinates(userUID: string, documentId: string): Observable<{ latitude: number; longitude: number } | null> {
+    const firestore = getFirestore();
+    const documentRef = doc(firestore, `users/${userUID}/documents/${documentId}`);
+  
+    return from(getDoc(documentRef)).pipe(
+      map(documentSnapshot => {
+        if (documentSnapshot.exists()) {
+          const data = documentSnapshot.data();
+          console.log('Datos obtenidos del documento:', data);
+  
+          // Acceder a las coordenadas desde el objeto location
+          const latitude = data?.['location']?.latitude ?? null;
+          const longitude = data?.['location']?.longitude ?? null;
+  
+          if (latitude !== null && longitude !== null) {
+            console.log('Coordenadas válidas:', { latitude, longitude });
+            return { latitude, longitude };
+          } else {
+            console.warn(`El documento con ID ${documentId} no contiene coordenadas válidas en la propiedad "location".`);
+            return null;
+          }
+        } else {
+          console.warn(`El documento con ID ${documentId} no existe.`);
+          return null;
+        }
+      })
+    );
   }
-
+}
 function getDataFromSomewhere(): unknown {
   throw new Error('Function not implemented.');
 }

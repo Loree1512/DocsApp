@@ -31,8 +31,8 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
-            "scripts": [],
+            "styles": ["src/global.scss", "src/theme/variables.scss", "node_modules/leaflet/dist/leaflet.css"],
+            "scripts": ["node_modules/leaflet/dist/leaflet.js"],
             "allowedCommonJsDependencies": [
               "core-js/modules/es.string.trim.js",
               "core-js/modules/es.array.index-of.js",
@@ -47,6 +47,7 @@
               "core-js/modules/es.string.replace.js",
               "core-js/modules/es.string.split.js",
               "core-js/modules/es.string.starts-with.js",
+              "node_modules/leaflet/dist/leaflet.js",
               "raf",
               "rgbcolor",
               "mammoth",
@@ -134,7 +135,7 @@
                       "src/theme/variables.scss",
                       "src/styles.css",
                       "node_modules/leaflet/dist/leaflet.css"],
-            "scripts": []
+            "scripts": ["node_modules/leaflet/dist/leaflet.js"]
           },
           "configurations": {
             "ci": {

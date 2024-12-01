@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { AuthGuard } from './guards/auth.guard';
+import { MapComponent } from 'src/app/shared/components/map/map.component';
 
 const routes: Routes = [
   {
@@ -20,7 +21,11 @@ const routes: Routes = [
   {
     path: '**',
     redirectTo: 'auth'
-  }
+  },
+  {
+    path: 'map',
+    component: MapComponent,  // Asegúrate de que esta ruta esté configurada correctamente
+  },
 ];
 
 @NgModule({

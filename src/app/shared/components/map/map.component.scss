@@ -1,30 +1,31 @@
 :host {
-    display: block;
-    height: 100%;
-  }
-  
-  /* Estilo del contenedor del mapa */
-  #map {
-    height: 100%; /* Asegura que el mapa ocupe toda la altura del contenedor */
-    width: 100%;  /* Asegura que el mapa ocupe todo el ancho del contenedor */
-    position: absolute; /* Evita problemas de posicionamiento */
-    top: 0;
-    left: 0;
-  }
-  /* Botón de cerrar en el encabezado */
-  ion-button {
-    --background: transparent;
-    --color: var(--ion-color-primary);
-  }
-  
-  ion-header {
-    --background: var(--ion-color-light);
-  }
+  display: block;
+  height: 100%;
+}
 
-  ion-content {
-    --padding-start: 0;
-    --padding-end: 0;
-    --padding-top: 0;
-    --padding-bottom: 0;
-    height: 100%;
-  }
+/* Estilo del contenedor del mapa */
+#mapContainer {
+  height: 100%; /* Ocupa toda la altura disponible */
+  width: 100%;  /* Ocupa todo el ancho disponible */
+  position: relative; /* Evitar problemas de desplazamiento */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Evita que contenido no deseado se muestre */
+}
+/* Botón de cerrar en el encabezado */
+ion-button {
+  --background: transparent;
+  --color: var(--ion-color-primary);
+}
+
+ion-header {
+  --background: var(--ion-color-light);
+}
+
+ion-content {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  height: 100%;
+}
