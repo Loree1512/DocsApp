@@ -22,6 +22,8 @@ import { NavController } from '@ionic/angular';
 })
 export class HomePage implements OnInit {
   currentUser: User;
+  images: any[] = []; 
+  usedSpace: number = 0;
   documents$: Observable<any[]>; 
   storage = getStorage();
   firestore = inject(AngularFirestore);
@@ -36,9 +38,10 @@ export class HomePage implements OnInit {
  
     const userUID = this.firebaseSvc.getuserUid();
     this.loadUserProfile();
+    this.loadImages();
+    this.getUsedSpace();
     this.documents$ = this.firebaseSvc.getDocumentsFromStorage(userUID);
     if (this.currentUser && this.currentUser.uid) {
-      this.getAvailableSpace();
       this.getRecentDocuments();
     } else {
       console.error('Usuario no autenticado');
@@ -54,6 +57,17 @@ export class HomePage implements OnInit {
       }
     }
 
+    async loadImages() {
+      try {
+        const userUID = this.firebaseSvc.getuserUid();
+        this.images = await this.firebaseSvc.getImagesFromStorage(userUID);
+        console.log('Imágenes cargadas:', this.images);
+      } catch (error) {
+        console.error('Error al cargar las imágenes:', error);
+      }
+    
+    }
+
     async loadUserProfile() {
       try {
         const userUID = this.firebaseSvc.getuserUid(); // Obtener el UID del usuario actual
@@ -64,9 +78,15 @@ export class HomePage implements OnInit {
       }
     }
 
-  async getAvailableSpace() {
-    this.availableSpace = await this.firebaseSvc.getAvailableSpace();
-  }
+    async getUsedSpace() {
+      try {
+        this.usedSpace = await this.firebaseSvc.getUsedSpace();
+        console.log('Espacio ocupado:', this.usedSpace, 'MB');
+      } catch (error) {
+        console.error('Error al obtener el espacio ocupado:', error);
+        this.usedSpace = 0; // En caso de error, establecer en 0
+      }
+    }
 
   getRecentDocuments() {
     const storagePath = `/users/${this.currentUser.uid}/documents`;
@@ -74,41 +94,6 @@ export class HomePage implements OnInit {
     // Asegúrate de llamar correctamente al servicio
     this.recentDocuments$ = this.firebaseSvc.getDocumentsFromStorage(this.currentUser.uid);
   }
-
-  /*
-  async uploadProfilePicture(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      const filePath = `users/${this.currentUser.uid}/${file.name}`;
-      const fileRef = ref(this.storage, filePath);
-      await uploadBytes(fileRef, file);
-      const downloadURL = await getDownloadURL(fileRef);
-      this.currentUser.photoURL = downloadURL;
-      await this.firebaseSvc.updateUserProfile(this.currentUser.uid, { photoURL: downloadURL });
-      this.getRecentDocuments(); // Actualizar documentos recientes después de subir la foto
-    }
-  }
-
-  async takeProfilePicture() {
-    try {
-      const photo = await this.utilsSvc.takePicture('Tomar foto de perfil');
-      if (!photo) {
-        console.log('El usuario canceló la acción de tomar una foto.');
-        return;
-      }
-      const filePath = `users/${this.currentUser.uid}/profile.jpg`;
-      const fileRef = ref(this.storage, filePath);
-      await uploadString(fileRef, photo.dataUrl, 'data_url');
-      const downloadURL = await getDownloadURL(fileRef);
-      this.currentUser.photoURL = downloadURL;
-      await this.firebaseSvc.updateUserProfile(this.currentUser.uid, { photoURL: downloadURL });
-      this.getRecentDocuments(); // Actualizar documentos recientes después de tomar la foto
-    } catch (error) {
-      console.error('Error al tomar la foto de perfil:', error);
-    }
-  }
-    */
 
   async uploadProfilePicture(event: Event) {
     const input = event.target as HTMLInputElement;

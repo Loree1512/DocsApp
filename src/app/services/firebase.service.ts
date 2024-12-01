@@ -23,7 +23,7 @@ export class FirebaseService {
   auth = inject(AngularFireAuth);
   firestore = inject(AngularFirestore);
   utilsSvc = inject(UtilsService);
-  private userUid: string = 'USER_UID';
+
 
   constructor() {
     
@@ -94,19 +94,47 @@ async signUp(user: User): Promise<any> {  // Devuelve una promesa que resuelve c
 }
 
 
-  private async getUsedSpace(): Promise<number> {
-    // Implementa la lógica para calcular el espacio utilizado
-    // Aquí hay un ejemplo básico que suma el tamaño de todos los archivos en Firebase Storage
-    const storageRef = ref(getStorage(), 'users/${}/documents');
-    const documentList = await listAll(storageRef);
-    let totalSize = 0;
-    for (const itemRef of documentList.items) {
-      const metadata = await getMetadata(itemRef);
-      totalSize += metadata.size;
-    }
-    return totalSize / (1024 * 1024); // Convertir a MB
-  }
+async getUsedSpace(): Promise<number> {
+  try {
+    const userUID = this.getuserUid();
+    console.log('Obteniendo espacio para el usuario:', userUID);
+    
+    // Crear referencias para los documentos y las imágenes
+    const storageRefDocuments = ref(getStorage(), `users/${userUID}/documents/`);
+    const storageRefImages = ref(getStorage(), `users/${userUID}/images/`);
+    
+    // Listar todos los archivos en las carpetas de documentos e imágenes
+    const fileListDocuments = await listAll(storageRefDocuments);
+    const fileListImages = await listAll(storageRefImages);
 
+    console.log('Archivos en documentos:', fileListDocuments.items.length);  // Ver cuántos archivos se encontraron en documentos
+    console.log('Archivos en imágenes:', fileListImages.items.length);  // Ver cuántos archivos se encontraron en imágenes
+    
+    let totalSize = 0;
+
+    // Iterar sobre los archivos en la carpeta de documentos
+    for (const itemRef of fileListDocuments.items) {
+      const metadata = await getMetadata(itemRef);
+      console.log(`Documento: ${itemRef.name}, Tamaño: ${metadata.size} bytes`);  // Mostrar nombre y tamaño del archivo
+      totalSize += metadata.size;  // Acumulamos el tamaño de cada archivo
+    }
+
+    // Iterar sobre los archivos en la carpeta de imágenes
+    for (const itemRef of fileListImages.items) {
+      const metadata = await getMetadata(itemRef);
+      console.log(`Imagen: ${itemRef.name}, Tamaño: ${metadata.size} bytes`);  // Mostrar nombre y tamaño del archivo
+      totalSize += metadata.size;  // Acumulamos el tamaño de cada archivo
+    }
+
+    // Convertir tamaño total a MB
+    const totalSizeInMB = totalSize / (1024 * 1024); 
+    console.log('Tamaño total en MB:', totalSizeInMB);  // Ver el tamaño total calculado
+    return totalSizeInMB;
+  } catch (error) {
+    console.error('Error al obtener el espacio utilizado:', error);
+    throw new Error('No se pudo calcular el espacio utilizado.');
+  }
+}
 
 
   // ***** Cerrar sesion *****
@@ -226,23 +254,7 @@ getUserDocumentsCollection(userUID: string): Observable<any[]> {
     }
   }
 
-  async uploadFile(file: File, documentData: Partial<Document>): Promise<void> {
-    const id = this.firestore.createId();
-    const filePath = `${this.userUid}/documents/${id}`;
-    const fileRef = this.storage.ref(filePath);
 
-    return fileRef.put(file).then(async () => {
-      const url = await fileRef.getDownloadURL().toPromise();
-      const docData = {
-        ...documentData,
-        url,
-        fullPath: filePath,
-        id,
-      };
-
-      return this.firestore.collection(`users/${this.userUid}/documents`).doc(id).set(docData);
-    });
-  }
 
 
     // ************* obtener referencia de almacenamiento ***********
@@ -315,14 +327,7 @@ async getUserProfile(userUID: string): Promise<User> {
 
 
      // ************* almacenamiento ***********
-  async getAvailableSpace(): Promise<number> {
-    // Implementa la lógica para obtener el espacio disponible
-    // Esto puede variar dependiendo de cómo gestiones el almacenamiento
-    // Aquí hay un ejemplo básico que asume que tienes un límite definido
-    const totalSpace = 1000; // Espacio total en MB (ejemplo)
-    const usedSpace = await this.getUsedSpace();
-    return totalSpace - usedSpace;
-  }
+
 
   async addDocumentToFirestore(docData: any) {
     const userUID = this.getUserUID(); // Asegúrate de obtener el UID del usuario
@@ -356,6 +361,37 @@ async getUserProfile(userUID: string): Promise<User> {
         }
       })
     );
+  }
+
+
+  // ************* obtener imagenes ***********
+
+
+  // Función para guardar la URL de la imagen en Firestore
+  async addImageDocument(userUID: string, imageDocData: any): Promise<void> {
+    const firestore = getFirestore();
+    
+    // Crear una referencia a la subcolección "images" dentro del documento del usuario
+    const imagesRef = collection(firestore, `users/${userUID}/images`);
+    
+    // Crear un documento dentro de la colección "images" con un ID único generado por Firestore
+    await addDoc(imagesRef, imageDocData);  // Esto generará un ID único automáticamente
+  }
+
+  // Función para obtener todas las imágenes de Firestore
+  async getImagesFromStorage(userUID: string): Promise<any[]> {
+    const firestore = getFirestore();
+    const imagesRef = collection(firestore, `users/${userUID}/images`);
+    
+    const imagesQuery = query(imagesRef, orderBy('createdAt', 'desc'));
+  
+    const querySnapshot = await getDocs(imagesQuery);
+  
+    const images = querySnapshot.docs.map(doc => {
+      return { id: doc.id, ...doc.data() };
+    });
+  
+    return images;
   }
 }
 function getDataFromSomewhere(): unknown {

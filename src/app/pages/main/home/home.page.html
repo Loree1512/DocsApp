@@ -26,10 +26,10 @@
 
   <ion-card>
     <ion-card-header>
-      <ion-card-title>Espacio Disponible</ion-card-title>
+      <ion-card-title>Espacio Ocupado</ion-card-title>
     </ion-card-header>
     <ion-card-content>
-      <p>{{ availableSpace }} MB disponibles</p>
+      <p>{{ usedSpace }} MB ocupados</p>
     </ion-card-content>
   </ion-card>
 
@@ -57,6 +57,24 @@
       </ion-list>
     </ion-card-content>
   </ion-card>
+
+  <!-- Lista de imágenes subidas -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Imágenes Subidas</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item *ngFor="let image of images">
+          <p>{{ image.name }}</p>
+          <ion-button fill="clear" slot="end" (click)="image.imageUrl ? viewDocument(image.imageUrl) : null">
+            <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
   <ion-button (click)="signOut()" expand="block" fill="clear" shape="round">
     Cerrar sesión
   </ion-button>
