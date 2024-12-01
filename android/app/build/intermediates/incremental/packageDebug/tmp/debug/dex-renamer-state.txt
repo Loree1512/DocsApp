@@ -1,4 +1,4 @@
-#Thu Nov 07 06:51:09 CLST 2024
+#Sun Dec 01 18:42:06 CLST 2024
 base.0=C\:\\Users\\Usuario\\Desktop\\DocsApp\\android\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\Usuario\\Desktop\\DocsApp\\android\\app\\build\\intermediates\\dex\\debug\\mergeLibDexDebug\\14\\classes.dex
 base.10=C\:\\Users\\Usuario\\Desktop\\DocsApp\\android\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\7\\classes.dex

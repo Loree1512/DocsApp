@@ -22,6 +22,7 @@ import { NavController } from '@ionic/angular';
 })
 export class HomePage implements OnInit {
   currentUser: User;
+  isModalOpen = false; 
   images: any[] = []; 
   usedSpace: number = 0;
   documents$: Observable<any[]>; 
@@ -223,6 +224,7 @@ export class HomePage implements OnInit {
   });
 }
 
+
  // Función para visualizar el documento
  async viewDocument(url: string) {
   try {
@@ -235,7 +237,6 @@ export class HomePage implements OnInit {
     alert('No se pudo abrir el documento: ' + (error.message || 'Ruta no válida.'));
   }
 }
-
 
 async openMapForDocument(documentId: string) {
   try {

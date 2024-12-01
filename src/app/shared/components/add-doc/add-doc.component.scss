@@ -5,6 +5,8 @@ ion-toolbar {
 
 ion-button{
     --background:#709775;
+    --color: white;
+    border-radius: 8px;
   }
 
   .custom-file-button {
@@ -14,3 +16,12 @@ ion-button{
     --ion-color-primary: #709775; /* Asegura que los iconos también sean verdes */
     border: 1px solid #709775; /* Borde verde */
   }
+
+  .icon-button ion-icon{
+    --color:#fff;
+  }
+
+  ion-buttons ion-button ion-icon {
+    --color: white; 
+  }
+  
