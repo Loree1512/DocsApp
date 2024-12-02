@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">docsApp</string>
     <string name="title_activity_main">docsApp</string>
-    <string name="package_name">io.ionic.starter</string>
-    <string name="custom_url_scheme">io.ionic.starter</string>
+    <string name="package_name">proyecto.docsApp.005</string>
+    <string name="custom_url_scheme">proyecto.docsApp.005</string>
 </resources>
