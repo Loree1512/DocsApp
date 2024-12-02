@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'proyecto.docsApp.005',
-  appName: 'docsApp',
+  appId: 'proyecto.docsApp.duoc',
+  appName: 'DocsApp',
   webDir: 'www',
   "plugins": {
   "Geolocation": {
