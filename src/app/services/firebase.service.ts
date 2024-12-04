@@ -19,7 +19,7 @@ import { collection, collectionData, query, orderBy } from '@angular/fire/firest
   providedIn: 'root'
 })
 export class FirebaseService {
-  private storage: AngularFireStorage;
+  storage: AngularFireStorage;
   auth = inject(AngularFireAuth);
   firestore = inject(AngularFirestore);
   utilsSvc = inject(UtilsService);
