@@ -1,29 +1,6 @@
 
-
+<app-header title="Inicio"></app-header>
 <ion-content>
-
-
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Perfil del Usuario</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-item>
-        <ion-avatar slot="start">
-          <img [src]="currentUser.photoURL" />
-        </ion-avatar>
-        <ion-label>
-          <h2>{{ currentUser.name }}</h2>
-          <p>{{ currentUser.email }}</p>
-        </ion-label>
-      </ion-item>
-      <ion-item>
-        <ion-label>Tomar foto de perfil</ion-label>
-        <ion-button (click)="takeProfilePicture()">Tomar Foto</ion-button>
-      </ion-item>
-    </ion-card-content>
-  </ion-card>
-
   <ion-card>
     <ion-card-header>
       <ion-card-title>Espacio Ocupado</ion-card-title>

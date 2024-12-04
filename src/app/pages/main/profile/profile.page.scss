@@ -1,0 +1,24 @@
+ion-avatar{
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+  }
+  
+  .photo-btn{
+      position: relative;
+      bottom: 25px;
+  }
+  .avatar-center {
+    display: block;
+    margin: 0 auto;
+  }
+  ion-button {
+    margin-top: 20px;
+  }
+  .custom-button {
+    --background: white;
+    --border-color: #709775;
+    --border-width: 3px;
+    --border-style: solid;
+    --color: #709775;
+  }

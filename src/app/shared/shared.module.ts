@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddDocComponent } from './components/add-doc/add-doc.component';
 import { ScanDocComponent } from './components/scan-doc/scan-doc.component';
 import { ConvertDocComponent } from './components/convert-doc/convert-doc.component';
+import { RouterModule } from '@angular/router';
 
 
 
@@ -33,7 +34,8 @@ import { ConvertDocComponent } from './components/convert-doc/convert-doc.compon
     CommonModule,
     IonicModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    RouterModule
   ]
 })
 export class SharedModule { }

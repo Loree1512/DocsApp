@@ -1,40 +1,44 @@
 ion-content {
-    --background:linear-gradient(to right, #709775, #8fa678);
-    padding: 0;
-    margin: 0;
-    width: 100%; 
-    height: 100%; 
-    box-sizing: border-box; 
-  }
-  
-  .main_content{
-    width: 100%;
-    padding: 0; 
-    margin: 0; 
-    box-sizing: border-box; 
-  }
-  ion-toolbar {
-    --background: #709775;
-    --color: white;
-  }
-  
-  ion-buttons ion-button {
-    --color: white; 
-  }
-  
-  ion-buttons ion-button ion-icon {
-    --color: white; 
-  }
-  
-  ion-menu-button {
-    --color: white;
-  }
-  
-  ion-label{
-    display: block;
-    text-align: center;
-  }
-  
-  ion-menu ion-label{
-    color: white;
-  }  
+  --background:linear-gradient(to right, #709775, #8fa678);
+  padding: 0;
+  margin: 0;
+  width: 100%; 
+  height: 100%; 
+  box-sizing: border-box; 
+}
+
+.main_content{
+  width: 100%;
+  padding: 0; 
+  margin: 0; 
+  box-sizing: border-box; 
+}
+ion-toolbar {
+  --background: #709775;
+  --color: white;
+}
+
+ion-buttons ion-button {
+  --color: white; 
+}
+
+ion-buttons ion-button ion-icon {
+  --color: white; 
+}
+
+ion-menu-button {
+  --color: white;
+}
+
+ion-label{
+  display: block;
+  text-align: center;
+}
+
+ion-menu ion-label{
+  color: white;
+}  
+
+.profile-icon {
+  font-size: 30px; // Ajusta este valor según necesites
+}

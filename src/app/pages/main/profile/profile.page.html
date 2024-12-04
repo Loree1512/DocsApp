@@ -1,13 +1,20 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>profile</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">profile</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<app-header title="Perfil del Usuario" [hideProfileIcon]="true" [backButton]="'/main/home'"></app-header>
+<ion-content>
+  <ion-card>
+    <ion-card-header>
+      <ion-avatar class="avatar-center">
+        <img [src]="currentUser.photoURL" />
+      </ion-avatar>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-text class="ion-text-center">
+        <h2>{{ currentUser.name }}</h2>
+        <p>{{ currentUser.email }}</p>
+      </ion-text>
+      <ion-button expand="block" class="custom-button" (click)="takeProfilePicture()">
+        <ion-icon name="camera-outline" slot="start"></ion-icon>
+        Tomar Foto
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
