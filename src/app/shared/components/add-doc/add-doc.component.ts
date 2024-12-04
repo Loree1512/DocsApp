@@ -74,6 +74,8 @@ export class AddDocComponent implements OnInit {
    async submit() {
     if (this.form.valid && this.selectedFile) {
       const documentData = this.form.value;
+      const loading = await this.utilsSvc.loading();
+      await loading.present();
   
       try {
         // Obtener ubicación
@@ -96,13 +98,28 @@ export class AddDocComponent implements OnInit {
       await this.firebaseSvc.addDocument(data, this.selectedFile);
 
   
-        alert('Documento subido con éxito.');
-        this.selectedFile = null;
-        this.form.reset();
-      } catch (error) {
-        console.error('Error al subir el documento:', error);
-      }
+      this.utilsSvc.dismissModal({ success: true });
+      this.utilsSvc.presentToast({
+        message: 'Imagen subida con éxito',
+        duration: 2000,
+        position: 'middle',
+        color: 'success',
+        icon: 'checkmark-circle-outline'
+      });
+
+    } catch (error) {
+      console.log(error);
+      this.utilsSvc.presentToast({
+        message: error.message,
+        duration: 2000,
+        position: 'middle',
+        color: 'danger',
+        icon: 'alert-circle-outline'
+      });
+    } finally {
+      loading.dismiss();
     }
+  }
   }
   // Función para visualizar el documento
   async viewDocument(url: string) {
